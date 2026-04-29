@@ -1,132 +1,41 @@
-# 🛒 FusaShop — Plataforma E-Commerce
+# FusaShop - E-commerce Platform
 
-## ⚡ Instalación rápida (XAMPP)
+Plataforma de comercio electrónico construida con Laravel y Vue.js
 
-### 1. Requisitos
+## 🚀 Despliegue
+
+Esta aplicación requiere un servidor con:
 - PHP 8.2+
-- Composer
-- MySQL (XAMPP)
-- Node.js (opcional, no requerido)
+- MySQL/PostgreSQL
+- Node.js para el build del frontend
 
-### 2. Clonar / Extraer
-```bash
-# Extraer el ZIP en htdocs o cualquier carpeta
-cd fusashop
-```
+### Opciones de despliegue:
 
-### 3. Dependencias
+1. **Railway** (Recomendado)
+2. **Render**
+3. **Heroku**
+4. **DigitalOcean App Platform**
+
+## 📋 Características
+
+- Sistema de autenticación completo
+- Catálogo de productos
+- Carrito de compras
+- Sistema de pagos
+- Chat en tiempo real
+- Panel de administración
+- Análisis con Python
+
+## 🛠️ Instalación local
+
 ```bash
 composer install
-```
-
-### 4. Configurar entorno
-```bash
+npm install
 cp .env.example .env
 php artisan key:generate
-```
-
-Editar `.env`:
-```
-DB_HOST=127.0.0.1
-DB_DATABASE=fusashop
-DB_USERNAME=root
-DB_PASSWORD=          # vacío en XAMPP por defecto
-```
-
-### 5. Base de datos
-Crear la BD `fusashop` en phpMyAdmin, luego:
-```bash
-php artisan migrate --seed
-```
-
-### 6. Storage
-```bash
-php artisan storage:link
-```
-
-### 7. Ejecutar
-```bash
+php artisan migrate
+php artisan db:seed
+npm run build
 php artisan serve
 ```
-Abrir: http://localhost:8000
 
----
-
-## 👥 Cuentas de prueba
-
-| Rol         | Email                   | Contraseña    |
-|-------------|-------------------------|---------------|
-| Analista    | admin@fusashop.com      | password123   |
-| Comerciante | tienda@fusashop.com     | password123   |
-| Comerciante | tech@fusashop.com       | password123   |
-| Consumidor  | juan@fusashop.com       | password123   |
-| Consumidor  | maria@fusashop.com      | password123   |
-
----
-
-## 🗺️ Rutas principales
-
-| URL                        | Descripción                  |
-|----------------------------|------------------------------|
-| `/login`                   | Inicio de sesión             |
-| `/register`                | Registro de usuario          |
-| `/shop`                    | Tienda (consumidor)          |
-| `/shop/catalog`            | Catálogo con filtros         |
-| `/shop/cart`               | Carrito de compras           |
-| `/shop/checkout`           | Pago simulado                |
-| `/merchant/dashboard`      | Panel comerciante            |
-| `/merchant/products`       | CRUD productos               |
-| `/analyst/dashboard`       | Panel analítica + charts     |
-| `/api/products`            | API REST pública             |
-| `/api/login`               | Auth API (Sanctum)           |
-
----
-
-## 🐍 Python Analytics
-
-```bash
-cd python
-pip install mysql-connector-python pandas
-python analytics.py --report all --output json
-python analytics.py --report ventas --output csv
-```
-
----
-
-## 🔐 Seguridad implementada (OWASP)
-- ✅ CSRF tokens en todos los formularios
-- ✅ Validación y sanitización de inputs (strip_tags)
-- ✅ Hash bcrypt de contraseñas
-- ✅ Protección SQL Injection (Eloquent ORM + bindings)
-- ✅ Protección XSS (e() / {{}})
-- ✅ Control de acceso por roles (RoleMiddleware)
-- ✅ API autenticada con Sanctum tokens
-- ✅ Autorización de recursos por propietario
-
----
-
-## 🏗️ Arquitectura
-```
-app/
-  Http/
-    Controllers/
-      Auth/AuthController.php
-      Consumer/ConsumerController.php
-      Merchant/MerchantController.php
-      Analyst/AnalystController.php
-      ApiController.php
-    Middleware/RoleMiddleware.php
-  Models/ (User, Product, Cart, CartItem, Order, OrderItem)
-  Providers/AppServiceProvider.php
-database/migrations/   (4 archivos)
-database/seeders/DatabaseSeeder.php
-resources/views/
-  auth/ (login, register)
-  layouts/app.blade.php
-  consumer/ (home, catalog, product-detail, cart, checkout, orders)
-  merchant/ (dashboard, products, product-form, orders)
-  analyst/ (dashboard, users, orders)
-python/analytics.py
-routes/ (web.php, api.php)
-```
-# Fusashop
