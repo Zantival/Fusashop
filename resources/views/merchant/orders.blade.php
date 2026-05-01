@@ -24,7 +24,7 @@
             <span class="px-3 py-1 rounded-full text-xs font-bold {{ $sc[$order->status] ?? '' }}">{{ ucfirst($order->status) }}</span>
             <div class="flex flex-col items-end">
               @if($order->discount > 0)
-                <span class="text-[11px] font-bold text-[#ba1a1a] bg-[#ffdad6] px-2 py-0.5 rounded-md mb-1">- Descuento Puntos: ${{ number_format($order->discount, 0, ',', '.') }}</span>
+                <span class="text-[11px] font-bold text-[#ba1a1a] bg-[#ffdad6] px-2 py-0.5 rounded-md mb-1">- Puntos usados: {{ $order->points_used }} pts (${{ number_format($order->discount, 0, ',', '.') }})</span>
               @endif
               <span class="font-bold text-primary text-xl">${{ number_format($order->total,0,',','.') }}</span>
             </div>

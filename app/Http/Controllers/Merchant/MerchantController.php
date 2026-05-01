@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Merchant;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Product, Order, OrderItem, CompanyProfile, Review};
+use App\Models\{Product, Order, OrderItem, CompanyProfile, Review, BannerRequest};
 use App\Notifications\OrderStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -366,5 +366,49 @@ class MerchantController extends Controller
         }
 
         return redirect()->route('merchant.inventory')->with('success', 'Inventario actualizado rápidamente.');
+    }
+    public function finances()
+    {
+        $merchant = Auth::user();
+        $productIds = $merchant->products()->pluck('id');
+
+        $orders = Order::whereHas('items', fn($q) => $q->whereIn('product_id', $productIds))
+                       ->with('items')
+                       ->get();
+        
+        $grossSales = 0;
+        $pointsDiscounts = 0;
+        $prodIdsArr = $productIds->toArray();
+        
+        foreach($orders as $order) {
+            $merchantTotal = 0;
+            foreach($order->items as $item) {
+                if(in_array($item->product_id, $prodIdsArr)) {
+                    $merchantTotal += $item->quantity * $item->price;
+                }
+            }
+            $grossSales += $merchantTotal;
+            
+            $orderGross = $order->total + $order->discount;
+            if($orderGross > 0) {
+                $proportion = $merchantTotal / $orderGross;
+                $pointsDiscounts += $order->discount * $proportion;
+            }
+        }
+
+        $adSpend = BannerRequest::where('user_id', $merchant->id)
+                               ->where('status', 'approved')
+                               ->sum('cost');
+
+        $lowStockProducts = $merchant->products()
+                                     ->where('stock', '<=', 5)
+                                     ->orderBy('stock', 'asc')
+                                     ->get();
+
+        $realIncome = $grossSales - $pointsDiscounts - $adSpend;
+
+        return view('merchant.finances', compact(
+            'grossSales', 'pointsDiscounts', 'adSpend', 'realIncome', 'lowStockProducts'
+        ));
     }
 }

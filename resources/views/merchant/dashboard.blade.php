@@ -2,14 +2,28 @@
 @section('title','Dashboard Comerciante')
 @section('content')
 <div class="max-w-7xl mx-auto px-6 py-8">
-  <div class="flex items-center justify-between mb-8">
+  <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
     <div>
-      <h1 class="text-3xl font-['Manrope'] font-extrabold text-[#1b1c1c]">Mi Dashboard</h1>
-      <p class="text-[#3c4a41]">Hola, {{ auth()->user()->name }} 👋</p>
+      <h1 class="text-4xl font-['Manrope'] font-black text-[#1b1c1c] tracking-tight">Mi Negocio</h1>
+      <p class="text-[#3c4a41] text-lg font-medium">Hola, {{ auth()->user()->name }} 👋 ¡Qué bueno verte!</p>
     </div>
-    <a href="{{ route('merchant.products.create') }}" class="px-5 py-2.5 text-white font-semibold rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-md" style="background:linear-gradient(135deg,#006c47,#00b67a)">
-      <span class="material-symbols-outlined text-sm">add</span> Nuevo producto
-    </a>
+    <div class="flex flex-wrap gap-3">
+      <a href="{{ route('consumer.merchant.profile', auth()->id()) }}" target="_blank" class="px-5 py-3 bg-primary/5 border-2 border-primary/20 text-primary font-bold rounded-2xl hover:bg-primary/10 transition-all flex items-center gap-2 text-sm shadow-sm">
+        <span class="material-symbols-outlined text-[20px]">visibility</span> Ver Mi Tienda
+      </a>
+      <a href="{{ route('merchant.products') }}" class="px-5 py-3 bg-white border-2 border-surface-container-highest text-[#1b1c1c] font-bold rounded-2xl hover:border-primary hover:text-primary transition-all flex items-center gap-2 text-sm shadow-sm">
+        <span class="material-symbols-outlined text-[20px]">inventory_2</span> Mis Productos
+      </a>
+      <a href="{{ route('merchant.inventory') }}" class="px-5 py-3 bg-white border-2 border-surface-container-highest text-[#1b1c1c] font-bold rounded-2xl hover:border-primary hover:text-primary transition-all flex items-center gap-2 text-sm shadow-sm">
+        <span class="material-symbols-outlined text-[20px]">warehouse</span> Stock Rápido
+      </a>
+      <a href="{{ route('merchant.orders') }}" class="px-5 py-3 bg-white border-2 border-surface-container-highest text-[#1b1c1c] font-bold rounded-2xl hover:border-primary hover:text-primary transition-all flex items-center gap-2 text-sm shadow-sm">
+        <span class="material-symbols-outlined text-[20px]">receipt</span> Ver Pedidos
+      </a>
+      <a href="{{ route('merchant.products.create') }}" class="px-6 py-3 text-white font-bold rounded-2xl hover:opacity-95 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-primary/20" style="background:linear-gradient(135deg,#006c47,#00b67a)">
+        <span class="material-symbols-outlined text-[20px]">add_circle</span> Nuevo Producto
+      </a>
+    </div>
   </div>
 
   @if($outOfStock > 0)

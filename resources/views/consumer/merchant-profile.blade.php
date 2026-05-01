@@ -10,29 +10,30 @@
     $hasBanners = is_array($banners) && count($banners) > 0;
   @endphp
 
-  <div class="rounded-3xl overflow-hidden mb-8 shadow-sm bg-surface-container" style="height: clamp(240px, 45vw, 500px)">
+  <div class="rounded-3xl overflow-hidden mb-8 shadow-sm bg-surface">
     @if($hasBanners)
-      <div id="hero-carousel" class="relative h-full">
-        @foreach($banners as $i => $b)
-          @php
-            $path     = is_array($b) ? ($b['path'] ?? '')     : $b;
-            $title    = is_array($b) ? ($b['title'] ?? '')    : '';
-            $subtitle = is_array($b) ? ($b['subtitle'] ?? '') : '';
-          @endphp
-          <div class="carousel-slide absolute inset-0 transition-opacity duration-700 {{ $i === 0 ? 'opacity-100' : 'opacity-0' }} relative" data-index="{{ $i }}">
-            <img src="{{ url('files/' . $path) }}" class="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-105" alt="">
-            <img src="{{ url('files/' . $path) }}" alt="{{ $title }}" class="relative w-full h-full object-contain">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
-            @if($title || $subtitle)
-              <div class="absolute bottom-8 left-8 right-8 md:left-14 md:bottom-12">
-                <div class="inline-block">
-                  @if($title)<h2 class="text-2xl md:text-4xl font-black text-white drop-shadow-lg mb-2">{{ $title }}</h2>@endif
-                  @if($subtitle)<p class="text-sm md:text-base text-white/90 font-medium">{{ $subtitle }}</p>@endif
+      <div id="hero-carousel" class="relative w-full">
+        <div class="grid w-full">
+          @foreach($banners as $i => $b)
+            @php
+              $path     = is_array($b) ? ($b['path'] ?? '')     : $b;
+              $title    = is_array($b) ? ($b['title'] ?? '')    : '';
+              $subtitle = is_array($b) ? ($b['subtitle'] ?? '') : '';
+            @endphp
+            <div class="carousel-slide col-start-1 row-start-1 transition-opacity duration-700 {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}" data-index="{{ $i }}">
+              <img src="{{ url('files/' . $path) }}" alt="{{ $title }}" class="w-full h-auto block">
+              
+              @if($title || $subtitle)
+                <div class="absolute bottom-0 left-0 right-0 p-8 md:p-12 bg-gradient-to-t from-black/40 to-transparent pointer-events-none">
+                  <div class="inline-block">
+                    @if($title)<h2 class="text-2xl md:text-4xl font-black text-white drop-shadow-lg mb-2">{{ $title }}</h2>@endif
+                    @if($subtitle)<p class="text-sm md:text-base text-white/90 font-medium">{{ $subtitle }}</p>@endif
+                  </div>
                 </div>
-              </div>
-            @endif
-          </div>
-        @endforeach
+              @endif
+            </div>
+          @endforeach
+        </div>
         @if(count($banners) > 1)
           <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
             @foreach($banners as $i => $b)

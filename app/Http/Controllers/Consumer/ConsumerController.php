@@ -158,10 +158,13 @@ class ConsumerController extends Controller
         }
 
         DB::transaction(function () use ($cart, $request, $total, $discount) {
+            $pointsUsed = $discount / 50;
+            
             $order = Order::create([
                 'user_id'          => Auth::id(),
                 'total'            => $total - $discount,
                 'discount'         => $discount,
+                'points_used'      => $pointsUsed,
                 'status'           => 'pending',
                 'shipping_address' => strip_tags($request->shipping_address),
                 'payment_method'   => $request->payment_method,
@@ -190,15 +193,19 @@ class ConsumerController extends Controller
                 $merchantSubtotals[$mId] = ($merchantSubtotals[$mId] ?? 0) + $netSubtotal;
             }
 
+            $totalPointsEarned = 0;
             foreach ($merchantSubtotals as $mId => $subtotal) {
                 $points = floor($subtotal / 1000);
                 if ($points > 0) {
+                    $totalPointsEarned += $points;
                     \App\Models\LoyaltyPoint::updateOrCreate(
                         ['user_id' => Auth::id(), 'merchant_id' => $mId],
                         ['points' => \Illuminate\Support\Facades\DB::raw("points + $points")]
                     );
                 }
             }
+
+            $order->update(['points_earned' => $totalPointsEarned]);
 
             // Notificar a los comerciantes involucrados
             $merchantIds = $cart->items->pluck('product.merchant_id')->unique();
@@ -228,7 +235,9 @@ class ConsumerController extends Controller
             ->with(['items.product.merchant.companyProfile'])
             ->findOrFail($id);
             
-        return view('consumer.receipt', compact('order'));
+        $userPoints = \App\Models\LoyaltyPoint::where('user_id', Auth::id())->sum('points');
+            
+        return view('consumer.receipt', compact('order', 'userPoints'));
     }
 
     // --- PERFIL DE USUARIO ---

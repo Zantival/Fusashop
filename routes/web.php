@@ -119,6 +119,7 @@ Route::middleware(['auth', 'role:merchant'])->prefix('merchant')->name('merchant
         Route::get('/orders',                  [MerchantController::class, 'orders'])->name('orders');
         Route::patch('/orders/{order}/status', [MerchantController::class, 'orderUpdate'])->name('orders.update');
         Route::get('/reviews',                 [MerchantController::class, 'reviews'])->name('reviews');
+        Route::get('/finances',                [MerchantController::class, 'finances'])->name('finances');
         Route::get('/banner-request',          [MerchantController::class, 'bannerRequest'])->name('banner.request');
         Route::post('/banner-request',         [MerchantController::class, 'bannerRequestStore'])->name('banner.request.store');
     });

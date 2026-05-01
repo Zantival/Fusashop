@@ -36,10 +36,11 @@ class AnalystController extends Controller
         $recentUsers    = User::latest()->take(5)->get();
         
         $pendingKyc = CompanyProfile::where('kyc_status', 'pending')->with('user')->latest()->take(5)->get();
+        $pendingBanners = \App\Models\BannerRequest::where('status', 'pending')->with('user')->latest()->take(5)->get();
 
         return view('analyst.dashboard', compact(
             'totalSales','totalOrders','totalConsumers','totalMerchants',
-            'monthlySales','salesByCompany','ordersByStatus','topProducts','recentUsers','pendingKyc'
+            'monthlySales','salesByCompany','ordersByStatus','topProducts','recentUsers','pendingKyc', 'pendingBanners'
         ));
     }
 
@@ -220,9 +221,9 @@ class AnalystController extends Controller
         $requestInfo->update(['status' => 'approved']);
 
         GlobalBanner::create([
-            'title'      => 'Banner Patrocinado - ' . ($requestInfo->user->name ?? 'Comerciante'),
+            'title'      => 'Banner Patrocinado - ' . ($requestInfo->user->companyProfile->company_name ?? 'Comerciante'),
             'image_path' => $requestInfo->image_path,
-            'link_url'   => null,
+            'link_url'   => route('consumer.merchant.profile', $requestInfo->user_id),
             'is_active'  => true,
             'sort_order' => GlobalBanner::max('sort_order') + 1,
         ]);

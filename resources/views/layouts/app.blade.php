@@ -174,8 +174,12 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006c47","pr
         <a href="{{ route('merchant.products') }}" class="nav-link {{ request()->routeIs('merchant.products*') ? 'active' : '' }}">Productos</a>
         <a href="{{ route('merchant.inventory') }}" class="nav-link {{ request()->routeIs('merchant.inventory*') ? 'active' : '' }}">Inventario</a>
         <a href="{{ route('merchant.orders') }}" class="nav-link {{ request()->routeIs('merchant.orders*') ? 'active' : '' }}">Pedidos</a>
+        <a href="{{ route('merchant.finances') }}" class="nav-link {{ request()->routeIs('merchant.finances*') ? 'active' : '' }}">Finanzas</a>
         @if(\Illuminate\Support\Facades\Route::has('merchant.reviews'))<a href="{{ route('merchant.reviews') }}" class="nav-link {{ request()->routeIs('merchant.reviews') ? 'active' : '' }}">Reseñas</a>@endif
         <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">Mensajes</a>
+        <a href="{{ route('consumer.merchant.profile', auth()->id()) }}" target="_blank" class="px-3 py-1.5 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary/20 transition-all text-xs flex items-center gap-1 ml-2">
+          <span class="material-symbols-outlined text-sm">visibility</span> Mi Tienda
+        </a>
       @elseif(auth()->user()->isAnalyst())
         <a href="{{ route('analyst.dashboard') }}" class="nav-link {{ request()->routeIs('analyst.dashboard') ? 'active' : '' }}">Panel</a>
         <a href="{{ route('analyst.users') }}" class="nav-link {{ request()->routeIs('analyst.users*') ? 'active' : '' }}">Usuarios</a>
@@ -264,27 +268,59 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006c47","pr
         </button>
 
         <div id="user-dropdown"
-             class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-surface-container p-1.5 z-[60]">
-          <a href="{{ route('account.profile') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-surface-container-low rounded-lg transition-colors"><span class="material-symbols-outlined text-sm">person</span> Mi Perfil</a>
+             class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-surface-container p-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200">
+          <div class="px-4 py-3 border-b border-surface-container mb-2">
+            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Mi Cuenta</p>
+            <p class="text-sm font-black text-primary truncate">{{ auth()->user()->name }}</p>
+          </div>
+          
+          <a href="{{ route('account.profile') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-on-surface hover:bg-surface-container-low rounded-xl transition-all group">
+            <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary">account_circle</span> 
+            <span class="font-semibold">Mi Perfil</span>
+          </a>
+
           @if(auth()->user()->isConsumer())
-            <a href="{{ route('account.profile') }}#loyalty-section" class="flex items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-surface-container-low rounded-lg transition-colors">
-              <span class="material-symbols-outlined text-sm text-[#feb700]" style="font-variation-settings: 'FILL' 1">stars</span> 
-              Mis Puntos
+            <a href="{{ route('consumer.orders') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-on-surface hover:bg-surface-container-low rounded-xl transition-all group">
+              <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary">shopping_bag</span> 
+              <span class="font-semibold">Mis Compras</span>
+            </a>
+            <a href="{{ route('account.profile') }}#loyalty-section" class="flex items-center gap-3 px-3 py-2.5 text-sm text-on-surface hover:bg-surface-container-low rounded-xl transition-all group">
+              <span class="material-symbols-outlined text-[20px] text-[#feb700]" style="font-variation-settings: 'FILL' 1">stars</span> 
+              <span class="font-semibold">Puntos Fusa</span>
             </a>
           @endif
-          <a href="{{ route('chat.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-surface-container-low rounded-lg transition-colors"><span class="material-symbols-outlined text-sm">chat</span> Mensajes</a>
+
+          <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-on-surface hover:bg-surface-container-low rounded-xl transition-all group">
+            <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary">chat</span> 
+            <span class="font-semibold">Mensajes</span>
+          </a>
+
           @if(auth()->user()->isAnalyst())
-            <a href="{{ route('analyst.dashboard') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-primary font-bold hover:bg-[#6efcb9]/10 rounded-lg transition-colors"><span class="material-symbols-outlined text-sm">admin_panel_settings</span> Admin</a>
+            <div class="mt-2 pt-2 border-t border-surface-container">
+              <a href="{{ route('analyst.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm bg-primary/5 text-primary hover:bg-primary/10 rounded-xl transition-all font-bold group">
+                <span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">admin_panel_settings</span> 
+                <span>Panel de Control</span>
+              </a>
+            </div>
           @elseif(auth()->user()->isMerchant())
-            <a href="{{ route('merchant.dashboard') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-primary font-bold hover:bg-[#6efcb9]/10 rounded-lg transition-colors"><span class="material-symbols-outlined text-sm">storefront</span> Mi Tienda</a>
-          @else
-            <a href="{{ route('consumer.orders') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-surface-container-low rounded-lg transition-colors"><span class="material-symbols-outlined text-sm">receipt_long</span> Mis Compras</a>
+            <div class="mt-2 pt-2 border-t border-surface-container">
+              <a href="{{ route('merchant.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm bg-primary/5 text-primary hover:bg-primary/10 rounded-xl transition-all font-bold group">
+                <span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">storefront</span> 
+                <span>Gestionar Mi Tienda</span>
+              </a>
+              <a href="{{ route('merchant.finances') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-on-surface hover:bg-surface-container-low rounded-xl transition-all group mt-1">
+                <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary">query_stats</span> 
+                <span class="font-semibold">Mis Finanzas</span>
+              </a>
+            </div>
           @endif
-          <hr class="my-1 border-surface-container">
+
+          <hr class="my-2 border-surface-container">
           <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-[#ba1a1a] hover:bg-[#ffdad6]/30 rounded-lg transition-colors">
-              <span class="material-symbols-outlined text-sm">logout</span> Cerrar sesión
+            <button type="submit" class="w-full text-left flex items-center gap-3 px-3 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#ffdad6]/30 rounded-xl transition-all group">
+              <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">logout</span> 
+              <span class="font-bold">Cerrar Sesión</span>
             </button>
           </form>
         </div>

@@ -5,43 +5,40 @@
 {{-- Global Admin Banners --}}
 @if(isset($globalBanners) && $globalBanners->isNotEmpty())
   {{-- ── Banner Carousel ── --}}
-  <div class="w-full relative overflow-hidden bg-[#0d1a14]" style="height:clamp(260px,40vw,520px)" id="global-banner-wrap">
-    @foreach($globalBanners as $gi => $gb)
-      @php $url = asset('storage/'.$gb->image_path); @endphp
-      <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out {{ $gi===0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}" id="gb-{{$gi}}">
-        @if($gb->link_url)
-          <a href="{{ $gb->link_url }}" target="_blank" class="block w-full h-full relative">
-            <img src="{{ $url }}" class="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110" alt="" loading="{{ $gi===0 ? 'eager' : 'lazy' }}" decoding="async">
-            <img src="{{ $url }}" class="relative w-full h-full object-contain" alt="{{ $gb->title ?? 'Banner' }}" 
+  <div class="w-full relative bg-surface" id="global-banner-wrap">
+    <div class="grid w-full">
+      @foreach($globalBanners as $gi => $gb)
+        @php $url = asset('storage/'.$gb->image_path); @endphp
+        <div class="col-start-1 row-start-1 transition-opacity duration-1000 ease-in-out {{ $gi===0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}" id="gb-{{$gi}}">
+          @if($gb->link_url)
+            <a href="{{ $gb->link_url }}" target="_blank" class="block w-full h-full">
+              <img src="{{ $url }}" class="w-full h-auto block" alt="{{ $gb->title ?? 'Banner' }}" 
+                   loading="{{ $gi===0 ? 'eager' : 'lazy' }}" 
+                   fetchpriority="{{ $gi===0 ? 'high' : 'auto' }}"
+                   decoding="async">
+            </a>
+          @else
+            <img src="{{ $url }}" class="w-full h-auto block" alt="{{ $gb->title ?? 'Banner' }}" 
                  loading="{{ $gi===0 ? 'eager' : 'lazy' }}" 
                  fetchpriority="{{ $gi===0 ? 'high' : 'auto' }}"
                  decoding="async">
-          </a>
-        @else
-          <div class="w-full h-full relative">
-            <img src="{{ $url }}" class="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110" alt="" loading="{{ $gi===0 ? 'eager' : 'lazy' }}" decoding="async">
-            <img src="{{ $url }}" class="relative w-full h-full object-contain" alt="{{ $gb->title ?? 'Banner' }}" 
-                 loading="{{ $gi===0 ? 'eager' : 'lazy' }}" 
-                 fetchpriority="{{ $gi===0 ? 'high' : 'auto' }}"
-                 decoding="async">
-          </div>
-        @endif
-        {{-- Gradient overlay --}}
-        <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent pointer-events-none"></div>
-        @if($gb->title || $gb->subtitle ?? false)
-          <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 pointer-events-none">
-            <div class="max-w-7xl mx-auto">
-              @if($gb->title)
-                <p class="text-white font-black text-2xl md:text-5xl drop-shadow-lg leading-tight mb-2" style="font-family:'Manrope',sans-serif">{{ $gb->title }}</p>
-              @endif
-              @if(isset($gb->subtitle) && $gb->subtitle)
-                <p class="text-white/85 text-sm md:text-xl font-medium drop-shadow">{{ $gb->subtitle }}</p>
-              @endif
+          @endif
+
+          @if(($gb->title && $gb->title !== 'Bienvenido') || (isset($gb->subtitle) && $gb->subtitle))
+            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 pointer-events-none bg-gradient-to-t from-black/40 to-transparent">
+              <div class="max-w-7xl mx-auto">
+                @if($gb->title && $gb->title !== 'Bienvenido')
+                  <p class="text-white font-black text-2xl md:text-5xl drop-shadow-lg leading-tight mb-2" style="font-family:'Manrope',sans-serif">{{ $gb->title }}</p>
+                @endif
+                @if(isset($gb->subtitle) && $gb->subtitle)
+                  <p class="text-white/85 text-sm md:text-xl font-medium drop-shadow">{{ $gb->subtitle }}</p>
+                @endif
+              </div>
             </div>
-          </div>
-        @endif
-      </div>
-    @endforeach
+          @endif
+        </div>
+      @endforeach
+    </div>
 
     {{-- Dot indicators --}}
     @if($globalBanners->count() > 1)

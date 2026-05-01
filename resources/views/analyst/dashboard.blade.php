@@ -5,9 +5,22 @@
 @endpush
 @section('content')
 <div class="max-w-7xl mx-auto px-6 py-8">
-  <div class="mb-8">
-    <h1 class="text-3xl font-['Manrope'] font-extrabold text-on-background">Panel de Analítica</h1>
-    <p class="text-on-surface-variant mt-1">Vista general del rendimiento de FusaShop</p>
+  <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-['Manrope'] font-extrabold text-on-background">Panel de Analítica</h1>
+      <p class="text-on-surface-variant mt-1">Gestión administrativa y rendimiento de FusaShop</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a href="{{ route('analyst.users') }}" class="px-4 py-2 bg-surface-container border border-surface-container-highest text-on-surface font-bold rounded-xl hover:bg-surface-container-high transition-all flex items-center gap-2 text-sm shadow-sm">
+        <span class="material-symbols-outlined text-sm">group</span> Gestionar Usuarios
+      </a>
+      <a href="{{ route('analyst.banners') }}" class="px-4 py-2 bg-surface-container border border-surface-container-highest text-on-surface font-bold rounded-xl hover:bg-surface-container-high transition-all flex items-center gap-2 text-sm shadow-sm">
+        <span class="material-symbols-outlined text-sm">image</span> Gestionar Banners
+      </a>
+      <a href="{{ route('analyst.orders') }}" class="px-4 py-2 bg-surface-container border border-surface-container-highest text-on-surface font-bold rounded-xl hover:bg-surface-container-high transition-all flex items-center gap-2 text-sm shadow-sm">
+        <span class="material-symbols-outlined text-sm">shopping_bag</span> Ver Todos los Pedidos
+      </a>
+    </div>
   </div>
 
   <!-- KPI Cards -->
@@ -129,18 +142,12 @@
               <p class="text-xs text-on-surface-variant">Vendedor: {{ e($kyc->user->name) }}</p>
             </div>
             <div class="flex gap-2">
-              <a href="{{ route('analyst.users.rut', $kyc->merchant_id) }}" target="_blank" class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">picture_as_pdf</span> Validar RUT</a>
+              <a href="{{ route('analyst.users.rut', $kyc->merchant_id) }}" target="_blank" class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">picture_as_pdf</span> RUT</a>
               
               <form method="POST" action="{{ route('analyst.users.kyc', $kyc->merchant_id) }}">
                 @csrf
                 <input type="hidden" name="kyc_status" value="approved">
                 <button type="submit" class="px-3 py-1.5 bg-[#00b67a] text-white text-xs font-bold rounded-lg hover:opacity-90">Aprobar</button>
-              </form>
-
-              <form method="POST" action="{{ route('analyst.users.kyc', $kyc->merchant_id) }}">
-                @csrf
-                <input type="hidden" name="kyc_status" value="rejected">
-                <button type="submit" class="px-3 py-1.5 bg-error text-white text-xs font-bold rounded-lg hover:opacity-90">Rechazar</button>
               </form>
             </div>
           </div>
@@ -148,6 +155,35 @@
         </div>
       @endif
     </div>
+
+    <!-- Solicitudes de Banners Pendientes -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_12px_32px_rgba(27,28,28,.06)]">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="font-['Manrope'] font-bold text-on-background text-xl">Solicitudes de Banners</h2>
+        <a href="{{ route('analyst.banners') }}" class="text-primary text-sm font-semibold hover:underline">Gestionar</a>
+      </div>
+      @if($pendingBanners->isEmpty())
+        <p class="text-sm text-on-surface-variant">No hay solicitudes de banners pendientes.</p>
+      @else
+        <div class="space-y-4">
+          @foreach($pendingBanners as $pb)
+          <div class="flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-xl">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-8 bg-surface-container rounded overflow-hidden">
+                <img src="{{ asset('storage/'.$pb->image_path) }}" class="w-full h-full object-cover">
+              </div>
+              <div>
+                <p class="font-bold text-on-background text-sm">{{ e($pb->user->companyProfile->company_name ?? $pb->user->name) }}</p>
+                <p class="text-[10px] text-on-surface-variant">{{ $pb->created_at->diffForHumans() }}</p>
+              </div>
+            </div>
+            <a href="{{ route('analyst.banner-requests.show', $pb->id) }}" class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90">Revisar</a>
+          </div>
+          @endforeach
+        </div>
+      @endif
+    </div>
+  </div>
 
     <!-- ML Reviews Report -->
     <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_12px_32px_rgba(27,28,28,.06)] border border-primary/20">

@@ -95,10 +95,18 @@
                 </div>
                 @if($order->discount > 0)
                 <div class="flex justify-between w-full max-w-[200px] text-sm text-red-600 font-bold">
-                    <span>Descuento Puntos:</span>
+                    <span>Descuento ({{ $order->points_used }} pts):</span>
                     <span>-${{ number_format($order->discount, 0, ',', '.') }}</span>
                 </div>
                 @endif
+                <div class="flex justify-between w-full max-w-[200px] text-[10px] text-green-600 font-bold mt-1">
+                    <span>Puntos ganados:</span>
+                    <span>+{{ $order->points_earned }} pts</span>
+                </div>
+                <div class="flex justify-between w-full max-w-[200px] text-[10px] text-primary font-black uppercase tracking-tighter">
+                    <span>Saldo acumulado:</span>
+                    <span>{{ $userPoints }} pts</span>
+                </div>
                 <div class="flex justify-between w-full max-w-[200px] border-t border-surface-container pt-2 mt-2">
                     <span class="text-lg font-black text-on-background">TOTAL:</span>
                     <span class="text-xl font-black text-primary">${{ number_format($order->total, 0, ',', '.') }}</span>

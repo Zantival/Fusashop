@@ -81,7 +81,10 @@
           placeholder="Escribe un mensaje..."
           class="w-full px-4 py-3 bg-surface-container-low rounded-2xl border-2 border-transparent focus:border-primary outline-none resize-none text-sm transition-all"
           style="max-height: 120px;"
-          oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px'"></textarea>
+          oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px'; checkProfanity()"></textarea>
+        <div id="profanity-warning" class="hidden absolute -top-8 left-0 right-0 bg-red-100 text-red-600 text-[10px] px-3 py-1 rounded-t-xl border border-red-200 font-bold animate-fadeIn">
+          Palabra no permitida detectada. Por favor, modera tu lenguaje.
+        </div>
       </div>
       <button onclick="handleSendMessage()" id="btn-send-msg"
         class="w-11 h-11 bg-greenhouse-gradient text-white rounded-2xl flex items-center justify-center shadow-md active:scale-95 transition-all shrink-0">
@@ -110,6 +113,29 @@ const pollUrl = '{{ route('chat.poll', $otherUser->id) }}';
 const storeUrl = '{{ route('chat.store') }}';
 const productId = {{ request('product_id', 'null') }};
 const csrfToken = '{{ csrf_token() }}';
+const badWords = @json($badWords);
+
+function checkProfanity() {
+    const content = inputField.value.toLowerCase();
+    const warning = document.getElementById('profanity-warning');
+    
+    // Check if any bad word is present
+    const hasBadWord = badWords.some(word => {
+        // Simple word boundary check in JS
+        const regex = new RegExp('\\b' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+        return regex.test(content);
+    });
+
+    if (hasBadWord) {
+        sendBtn.disabled = true;
+        sendBtn.classList.add('opacity-50', 'grayscale');
+        warning.classList.remove('hidden');
+    } else {
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('opacity-50', 'grayscale');
+        warning.classList.add('hidden');
+    }
+}
 
 function scrollToBottom() {
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -161,6 +187,7 @@ function appendMsg(msg) {
 }
 
 async function handleSendMessage() {
+    if (sendBtn.disabled) return;
     const content = inputField.value.trim();
     if (!content) return;
 
@@ -202,7 +229,7 @@ async function handleSendMessage() {
     } finally {
         iconSend.classList.remove('hidden');
         iconSync.classList.add('hidden');
-        sendBtn.disabled = false;
+        checkProfanity();
         inputField.focus();
     }
 }

@@ -45,7 +45,9 @@ class ChatController extends Controller
         // Marcar como leídos
         Message::where('sender_id', $otherUserId)->where('receiver_id', $userId)->update(['is_read' => true]);
 
-        return view('chat.show', compact('messages', 'otherUser'));
+        $badWords = Message::getBadWords();
+
+        return view('chat.show', compact('messages', 'otherUser', 'badWords'));
     }
 
     /**
@@ -91,14 +93,7 @@ class ChatController extends Controller
         $content = strip_tags($request->content);
 
         // Filtro de groserías (Profanity Filter)
-        $badWords = [
-            'puta', 'mierda', 'marica', 'pendejo', 'pendeja', 'cabron', 'cabrón', 'idiota',
-            'estupido', 'estúpido', 'imbecil', 'imbécil', 'malparido', 'malparida', 'gonorrea',
-            'hijo de puta', 'hijueputa', 'jueputa', 'perra', 'pirobo', 'piroba', 'zorra', 'verga', 'culo',
-            'carechimba', 'huevon', 'huevón', 'guevon', 'güevón', 'guevona',
-            'maricon', 'maricón', 'cacorro', 'lambon', 'lambón', 'garbimba', 'gurrupleta',
-            'catrehijueputa', 'triplehijueputa', 'careverga', 'caremonda', 'monda', 'mondá', 'chimbada'
-        ];
+        $badWords = Message::getBadWords();
 
         foreach ($badWords as $word) {
             $pattern = '/\b' . preg_quote($word, '/') . '\b/iu';
