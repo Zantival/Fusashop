@@ -19,18 +19,28 @@
 .form-enter:nth-child(2) { animation-delay: 0.2s; }
 .form-enter:nth-child(3) { animation-delay: 0.3s; }
 
-.input-field {
-  width: 100%; padding: 0.875rem 0.875rem 0.875rem 2.75rem;
-  background: var(--surface-container); border-radius: 0.875rem; border: 2px solid transparent;
-  outline: none; transition: all 0.2s ease; font-size: 0.875rem;
-  color: var(--on-surface);
+.input-wrap {
+  display: flex; align-items: center;
+  background: var(--surface-container); border-radius: 1rem; border: 2px solid transparent;
+  transition: all 0.2s ease; overflow: hidden;
 }
-.input-field:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,108,71,0.08); }
-.input-icon {
-  position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
-  font-size: 20px; color: var(--on-surface-variant);
-  transition: opacity 0.2s ease;
+.input-wrap:focus-within { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,108,71,0.08); }
+.input-icon-box {
+  display: flex; align-items: center; justify-content: center;
+  width: 3rem; min-width: 3rem; height: 100%;
+  color: var(--on-surface-variant);
+  border-right: 1.5px solid rgba(0,0,0,0.07);
+  padding: 0 0.5rem;
+  font-size: 20px;
+  background: transparent;
   pointer-events: none;
+  user-select: none;
+}
+.input-field {
+  flex: 1; padding: 0.875rem 1rem;
+  background: transparent; border: none;
+  outline: none; font-size: 0.9rem;
+  color: var(--on-surface); width: 100%;
 }
 </style>
 @endsection
@@ -107,8 +117,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-enter md:col-span-2">
             <label class="block text-sm font-semibold text-on-surface mb-1.5">Nombre completo</label>
-            <div class="relative">
-              <span class="material-symbols-outlined input-icon">person</span>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-icon-box">person</span>
               <input type="text" name="name" value="{{ old('name') }}" required
                 class="input-field" placeholder="Tu nombre">
             </div>
@@ -116,8 +126,8 @@
 
           <div class="form-enter md:col-span-2">
             <label class="block text-sm font-semibold text-on-surface mb-1.5">Correo electrónico</label>
-            <div class="relative">
-              <span class="material-symbols-outlined input-icon">mail</span>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-icon-box">mail</span>
               <input type="email" name="email" value="{{ old('email') }}" required
                 class="input-field" placeholder="correo@ejemplo.com" autocomplete="email">
             </div>
@@ -125,24 +135,24 @@
 
           <div class="form-enter">
             <label class="block text-sm font-semibold text-on-surface mb-1.5">Contraseña</label>
-            <div class="relative" x-data="{ show: false }">
-              <span class="material-symbols-outlined input-icon">lock</span>
-              <input :type="show ? 'text' : 'password'" name="password" required
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-icon-box">lock</span>
+              <input type="password" name="password" id="password" required
                 class="input-field" placeholder="8+ caracteres" autocomplete="new-password">
-              <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
-                <span class="material-symbols-outlined text-[18px]" x-text="show ? 'visibility' : 'visibility_off'"></span>
+              <button type="button" onclick="togglePwd('password', 'eye-pwd')" class="flex items-center justify-center w-10 min-w-10 text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[20px]" id="eye-pwd">visibility_off</span>
               </button>
             </div>
           </div>
 
           <div class="form-enter">
             <label class="block text-sm font-semibold text-on-surface mb-1.5">Confirmar</label>
-            <div class="relative" x-data="{ show: false }">
-              <span class="material-symbols-outlined input-icon">lock_reset</span>
-              <input :type="show ? 'text' : 'password'" name="password_confirmation" required
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-icon-box">lock_reset</span>
+              <input type="password" name="password_confirmation" id="password_confirmation" required
                 class="input-field" placeholder="Repite contraseña">
-              <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
-                <span class="material-symbols-outlined text-[18px]" x-text="show ? 'visibility' : 'visibility_off'"></span>
+              <button type="button" onclick="togglePwd('password_confirmation', 'eye-pwd-conf')" class="flex items-center justify-center w-10 min-w-10 text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[20px]" id="eye-pwd-conf">visibility_off</span>
               </button>
             </div>
           </div>
@@ -167,6 +177,14 @@
 
 @section('scripts')
 <script>
+function togglePwd(inputId, iconId) {
+  const i = document.getElementById(inputId);
+  const e = document.getElementById(iconId);
+  if (!i || !e) return;
+  i.type = i.type === 'password' ? 'text' : 'password';
+  e.textContent = i.type === 'password' ? 'visibility_off' : 'visibility';
+}
+
 document.getElementById('register-form').addEventListener('submit', function() {
   const btn = document.getElementById('reg-btn');
   btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">sync</span> Creando cuenta...';

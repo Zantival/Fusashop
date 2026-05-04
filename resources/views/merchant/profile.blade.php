@@ -151,10 +151,16 @@
       </div>
     </div>
 
-    <div class="flex items-center justify-between mt-6">
-      <a href="{{ route('merchant.dashboard') }}" class="btn-secondary">
-        <span class="material-symbols-outlined text-sm">arrow_back</span> Volver
-      </a>
+    <div class="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
+      @if(!$profile || $profile->kyc_status !== 'approved')
+        <a href="#" onclick="event.preventDefault(); fetch('{{ route('logout') }}', { method: 'POST', headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'} }).then(() => window.location.href='{{ route('register') }}');" class="btn-secondary w-full sm:w-auto">
+          <span class="material-symbols-outlined text-sm">arrow_back</span> Volver al registro
+        </a>
+      @else
+        <a href="{{ route('merchant.dashboard') }}" class="btn-secondary w-full sm:w-auto">
+          <span class="material-symbols-outlined text-sm">arrow_back</span> Volver al panel
+        </a>
+      @endif
       <button type="submit" class="px-8 py-4 bg-greenhouse-gradient text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 active:scale-97 transition-all flex items-center gap-2">
         <span class="material-symbols-outlined text-[20px]">save</span>
         {{ $profile ? 'Actualizar Perfil' : 'Enviar para Aprobación' }}
