@@ -8,7 +8,7 @@
     <!-- Payment Form -->
     <div class="space-y-6">
       <!-- Card Preview -->
-      <div class="relative h-52 rounded-2xl bg-gradient-to-br from-[#006c47] to-[#00b67a] p-6 text-white shadow-xl overflow-hidden">
+      <div class="relative h-52 rounded-2xl bg-primary-gradient p-6 text-white shadow-xl overflow-hidden">
         <div class="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-12 translate-x-12"></div>
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
         <div class="relative z-10 h-full flex flex-col justify-between">

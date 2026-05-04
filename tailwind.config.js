@@ -1,10 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
-        "./resources/**/*.blade.php",
-        "./resources/**/*.js",
-        "./resources/**/*.vue",
+        "./resources/views/**/*.blade.php",
+        "./public/js/**/*.js",
     ],
+    darkMode: 'class',
     theme: {
         extend: {
             colors: {
@@ -21,6 +21,12 @@ export default {
                 "background": "#fcf9f8",
                 "secondary-container": "#feb700",
                 "error": "#ba1a1a",
+                "error-container": "#ffdad6",
+            },
+            borderRadius: {
+                lg: "0.5rem",
+                xl: "1rem",
+                "2xl": "1.5rem",
             },
             fontFamily: {
                 headline: ["Manrope", "sans-serif"],

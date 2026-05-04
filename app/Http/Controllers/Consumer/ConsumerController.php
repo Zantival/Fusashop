@@ -15,7 +15,7 @@ class ConsumerController extends Controller
 {
     public function home()
     {
-        $featured = Product::active()->latest()->take(8)->get();
+        $featured = Product::active()->with('merchant.companyProfile')->latest()->take(8)->get();
         $categories = Product::active()->select('category')->distinct()->pluck('category');
         $globalBanners = GlobalBanner::where('is_active', true)->orderBy('sort_order')->get();
         return view('consumer.home', compact('featured', 'categories', 'globalBanners'));
@@ -23,7 +23,7 @@ class ConsumerController extends Controller
 
     public function catalog(Request $request)
     {
-        $q = Product::active();
+        $q = Product::active()->with('merchant.companyProfile');
         
         if ($request->filled('search'))    $q->search($request->search);
         if ($request->filled('category'))  $q->where('category', $request->category);
@@ -33,7 +33,8 @@ class ConsumerController extends Controller
         $products = $q->paginate(12)->withQueryString();
         $categories = Product::active()->select('category')->distinct()->pluck('category');
 
-        $directory = CompanyProfile::where('kyc_status', 'approved')->get();
+        // Solo los primeros 10 para el carrusel de vendedores
+        $directory = CompanyProfile::where('kyc_status', 'approved')->select('id','merchant_id','company_name','logo_path')->take(10)->get();
 
         return view('consumer.catalog', compact('products', 'categories', 'directory'));
     }
@@ -283,7 +284,9 @@ class ConsumerController extends Controller
     // --- DIRECTORIO Y PERFIL DE MARCA ---
     public function merchantDirectory()
     {
-        $merchants = CompanyProfile::where('kyc_status', 'approved')->paginate(12);
+        $merchants = CompanyProfile::where('kyc_status', 'approved')
+            ->select('id','merchant_id','company_name','logo_path','description')
+            ->paginate(12);
         return view('consumer.directory', compact('merchants'));
     }
 
