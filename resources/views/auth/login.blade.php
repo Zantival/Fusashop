@@ -28,22 +28,31 @@
 .form-enter:nth-child(2) { animation-delay: 0.2s; }
 .form-enter:nth-child(3) { animation-delay: 0.3s; }
 
-.input-field {
-  width: 100%; padding: 0.875rem 0.875rem 0.875rem 2.75rem;
-  background: var(--surface-container); border-radius: 0.875rem; border: 2px solid transparent;
-  outline: none; transition: all 0.2s ease, padding-left 0.2s ease; font-size: 0.875rem;
-  color: var(--on-surface);
+.input-wrap {
+  display: flex; align-items: center;
+  background: var(--surface-container); border-radius: 1rem; border: 2px solid transparent;
+  transition: all 0.2s ease; overflow: hidden;
 }
-.input-field:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,108,71,0.08); }
-.input-field.valid   { border-color: #00b67a; }
-.input-field.invalid { border-color: var(--error); background: #fff8f8; }
-.input-icon {
-  position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
-  font-size: 20px; color: var(--on-surface-variant);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.input-wrap:focus-within { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,108,71,0.08); }
+.input-wrap.valid   { border-color: #00b67a; }
+.input-wrap.invalid { border-color: var(--error); background: #fff8f8; }
+.input-icon-box {
+  display: flex; align-items: center; justify-content: center;
+  width: 3rem; min-width: 3rem; height: 100%;
+  color: var(--on-surface-variant);
+  border-right: 1.5px solid rgba(0,0,0,0.07);
+  padding: 0 0.5rem;
+  font-size: 20px;
+  background: transparent;
   pointer-events: none;
+  user-select: none;
 }
-.input-icon.hidden-icon { opacity: 0; transform: translateY(-50%) scale(0.6); }
+.input-field {
+  flex: 1; padding: 0.875rem 1rem;
+  background: transparent; border: none;
+  outline: none; font-size: 0.9rem;
+  color: var(--on-surface); width: 100%;
+}
 </style>
 @endsection
 
@@ -114,12 +123,12 @@
         @csrf
         <div class="form-enter">
           <label class="block text-sm font-semibold text-on-surface mb-2">Correo electrónico</label>
-          <div class="relative">
-            <span class="material-symbols-outlined input-icon" id="icon-email">mail</span>
+          <div class="input-wrap" id="wrap-email">
+            <span class="material-symbols-outlined input-icon-box">mail</span>
             <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
               class="input-field" placeholder="tu@email.com"
               autocomplete="email"
-              oninput="validateEmail(this); toggleIcon('icon-email', this)">
+              oninput="validateEmail(this)">
           </div>
         </div>
 
@@ -128,13 +137,13 @@
             <label class="text-sm font-semibold text-on-surface">Contraseña</label>
             <a href="{{ route('password.request.offline') }}" class="text-xs text-primary font-semibold hover:underline">¿Olvidaste tu contraseña?</a>
           </div>
-          <div class="relative">
-            <span class="material-symbols-outlined input-icon" id="icon-pwd">lock</span>
+          <div class="input-wrap" id="wrap-pwd">
+            <span class="material-symbols-outlined input-icon-box">lock</span>
             <input type="password" name="password" id="password" required
               class="input-field" placeholder="Mínimo 8 caracteres"
               autocomplete="current-password"
-              oninput="validatePassword(this); toggleIcon('icon-pwd', this)">
-            <button type="button" onclick="togglePwd()" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors">
+              oninput="validatePassword(this)">
+            <button type="button" onclick="togglePwd()" class="flex items-center justify-center w-10 min-w-10 text-on-surface-variant hover:text-primary transition-colors">
               <span class="material-symbols-outlined text-[20px]" id="eye-icon">visibility_off</span>
             </button>
           </div>
@@ -162,28 +171,19 @@
 
 @section('scripts')
 <script>
-function toggleIcon(iconId, input) {
-  const icon = document.getElementById(iconId);
-  if (!icon) return;
-  if (input.value.length > 0) {
-    icon.classList.add('hidden-icon');
-    input.style.paddingLeft = '0.875rem';
-  } else {
-    icon.classList.remove('hidden-icon');
-    input.style.paddingLeft = '2.75rem';
-  }
-}
+// Función eliminada para evitar solapamiento visual
 function togglePwd(){
   const i=document.getElementById('password'), e=document.getElementById('eye-icon');
   i.type = i.type==='password'?'text':'password';
   e.textContent = i.type==='password'?'visibility_off':'visibility';
 }
 function validateEmail(input) {
+  const wrap = document.getElementById('wrap-email');
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
   if (input.value.length > 0) {
-    input.classList.toggle('valid', isValid);
-    input.classList.toggle('invalid', !isValid && input.value.length > 4);
-  } else { input.classList.remove('valid','invalid'); }
+    wrap.classList.toggle('valid', isValid);
+    wrap.classList.toggle('invalid', !isValid && input.value.length > 4);
+  } else { wrap.classList.remove('valid','invalid'); }
 }
 function validatePassword(input) {
   const val = input.value;
