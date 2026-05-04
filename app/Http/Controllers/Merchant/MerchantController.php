@@ -198,7 +198,10 @@ class MerchantController extends Controller
             'stock'       => 'required|integer|min:0',
             'category'    => 'required|string|max:100',
             'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'gallery.*'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_active'   => 'boolean',
+            'options'     => 'nullable|array',
+            'specs'       => 'nullable|array',
         ]);
 
         $imagePath = null;
@@ -206,15 +209,60 @@ class MerchantController extends Controller
             $imagePath = $request->file('image')->store('products', 'public');
         }
 
+        $galleryPaths = [];
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $galleryPaths[] = $file->store('products/gallery', 'public');
+            }
+        }
+
+        // Procesar opciones avanzadas
+        $availableOptions = [];
+        if ($request->filled('options')) {
+            foreach ($request->options as $index => $opt) {
+                if (!empty($opt['name'])) {
+                    $optionData = [
+                        'name' => strip_tags($opt['name']),
+                        'type' => $opt['type'] ?? 'text',
+                        'values' => []
+                    ];
+
+                    if ($optionData['type'] === 'color' && isset($opt['color_values'])) {
+                        foreach ($opt['color_values'] as $vIndex => $v) {
+                            $val = [
+                                'name' => strip_tags($v['name']),
+                                'hex'  => strip_tags($v['hex'] ?? '#000000'),
+                            ];
+                            
+                            if ($request->hasFile("options.$index.color_values.$vIndex.image")) {
+                                $val['image'] = $request->file("options.$index.color_values.$vIndex.image")->store('products/variants', 'public');
+                            }
+
+                            $optionData['values'][] = $val;
+                        }
+                    } else {
+                        $rawValues = $opt['values'] ?? '';
+                        $vals = is_array($rawValues) ? $rawValues : explode(',', $rawValues);
+                        $optionData['values'] = array_map('trim', array_map('strip_tags', array_filter($vals)));
+                    }
+
+                    $availableOptions[] = $optionData;
+                }
+            }
+        }
+
         Auth::user()->products()->create([
-            'name'        => strip_tags($data['name']),
-            'slug'        => Str::slug($data['name']) . '-' . uniqid(),
-            'description' => strip_tags($data['description'] ?? ''),
-            'price'       => $data['price'],
-            'stock'       => $data['stock'],
-            'category'    => strip_tags($data['category']),
-            'image'       => $imagePath,
-            'is_active'   => $request->boolean('is_active', true),
+            'name'              => strip_tags($data['name']),
+            'slug'              => Str::slug($data['name']) . '-' . uniqid(),
+            'description'       => strip_tags($data['description'] ?? ''),
+            'price'             => $data['price'],
+            'stock'             => $data['stock'],
+            'category'          => strip_tags($data['category']),
+            'image'             => $imagePath,
+            'images'            => $galleryPaths,
+            'available_options' => $availableOptions,
+            'specifications'    => $request->specs,
+            'is_active'         => $request->boolean('is_active', true),
         ]);
 
         return redirect()->route('merchant.products')->with('success', 'Producto creado exitosamente.');
@@ -237,7 +285,10 @@ class MerchantController extends Controller
             'stock'       => 'required|integer|min:0',
             'category'    => 'required|string|max:100',
             'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'gallery.*'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_active'   => 'boolean',
+            'options'     => 'nullable|array',
+            'specs'       => 'nullable|array',
         ]);
 
         if ($request->hasFile('image')) {
@@ -245,14 +296,69 @@ class MerchantController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
+        $galleryPaths = $product->images ?? [];
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $galleryPaths[] = $file->store('products/gallery', 'public');
+            }
+        }
+
+        // Eliminar fotos si se solicita (opcional, por ahora solo agregamos)
+        if ($request->has('remove_images')) {
+            foreach ($request->remove_images as $path) {
+                Storage::disk('public')->delete($path);
+                $galleryPaths = array_filter($galleryPaths, fn($p) => $p !== $path);
+            }
+        }
+
+        // Procesar opciones avanzadas
+        $availableOptions = [];
+        if ($request->filled('options')) {
+            foreach ($request->options as $index => $opt) {
+                if (!empty($opt['name'])) {
+                    $optionData = [
+                        'name' => strip_tags($opt['name']),
+                        'type' => $opt['type'] ?? 'text',
+                        'values' => []
+                    ];
+
+                    if ($optionData['type'] === 'color' && isset($opt['color_values'])) {
+                        foreach ($opt['color_values'] as $vIndex => $v) {
+                            $val = [
+                                'name' => strip_tags($v['name']),
+                                'hex'  => strip_tags($v['hex'] ?? '#000000'),
+                            ];
+                            
+                            if ($request->hasFile("options.$index.color_values.$vIndex.image")) {
+                                $val['image'] = $request->file("options.$index.color_values.$vIndex.image")->store('products/variants', 'public');
+                            } elseif (!empty($v['existing_image'])) {
+                                $val['image'] = $v['existing_image'];
+                            }
+
+                            $optionData['values'][] = $val;
+                        }
+                    } else {
+                        $rawValues = $opt['values'] ?? '';
+                        $vals = is_array($rawValues) ? $rawValues : explode(',', $rawValues);
+                        $optionData['values'] = array_map('trim', array_map('strip_tags', array_filter($vals)));
+                    }
+
+                    $availableOptions[] = $optionData;
+                }
+            }
+        }
+
         $product->update([
-            'name'        => strip_tags($data['name']),
-            'description' => strip_tags($data['description'] ?? ''),
-            'price'       => $data['price'],
-            'stock'       => $data['stock'],
-            'category'    => strip_tags($data['category']),
-            'image'       => $data['image'] ?? $product->image,
-            'is_active'   => $request->boolean('is_active', true),
+            'name'              => strip_tags($data['name']),
+            'description'       => strip_tags($data['description'] ?? ''),
+            'price'             => $data['price'],
+            'stock'             => $data['stock'],
+            'category'          => strip_tags($data['category']),
+            'image'             => $data['image'] ?? $product->image,
+            'images'            => array_values($galleryPaths),
+            'available_options' => $availableOptions,
+            'specifications'    => $request->specs,
+            'is_active'         => $request->boolean('is_active', $product->is_active),
         ]);
 
         return redirect()->route('merchant.products')->with('success', 'Producto actualizado.');

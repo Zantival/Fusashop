@@ -25,8 +25,19 @@
           </div>
           <div class="flex-1 min-w-0">
             <h3 class="font-['Manrope'] font-bold text-on-background truncate">{{ e($item->product->name) }}</h3>
-            <p class="text-on-surface-variant text-sm">{{ $item->product->category }}</p>
-            <p class="text-primary font-bold text-lg mt-1">${{ number_format($item->product->price,0,',','.') }}</p>
+            <p class="text-on-surface-variant text-[11px]">{{ $item->product->category }}</p>
+            
+            @if($item->selected_options)
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                @foreach($item->selected_options as $key => $val)
+                  <span class="text-[9px] bg-surface-container px-2 py-0.5 rounded border border-outline-variant/30 text-on-surface-variant">
+                    <span class="font-black opacity-50">{{ $key }}:</span> {{ $val }}
+                  </span>
+                @endforeach
+              </div>
+            @endif
+
+            <p class="text-primary font-black text-lg mt-1">${{ number_format($item->product->price,0,',','.') }}</p>
           </div>
           <div class="flex flex-col items-end justify-between shrink-0">
             <form method="POST" action="{{ route('consumer.cart.remove', $item->id) }}">

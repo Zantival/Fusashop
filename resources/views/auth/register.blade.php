@@ -162,6 +162,16 @@
           <button type="submit" id="reg-btn" class="w-full btn-primary py-4 text-sm shadow-lg shadow-primary/20">
             <span class="material-symbols-outlined text-[20px]">how_to_reg</span> Crear mi cuenta
           </button>
+          
+          <div class="relative flex items-center justify-center my-6">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-surface-container-highest"></div></div>
+            <span class="relative px-4 bg-white text-[10px] font-black text-on-surface-variant uppercase tracking-widest">O regístrate con</span>
+          </div>
+
+          <a href="{{ route('social.redirect', 'google') }}" class="w-full flex items-center justify-center gap-3 py-3.5 bg-white border-2 border-surface-container-highest rounded-2xl font-bold text-on-surface hover:bg-surface-container-low hover:border-primary/30 transition-all shadow-sm">
+             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google Logo">
+             <span class="text-sm">Google</span>
+          </a>
         </div>
 
         <p class="text-center text-xs text-on-surface-variant font-medium pt-4 form-enter">

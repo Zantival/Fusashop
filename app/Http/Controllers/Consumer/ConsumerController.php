@@ -65,11 +65,34 @@ class ConsumerController extends Controller
 
     public function cartAdd(Request $request)
     {
-        $request->validate(['product_id' => 'required|exists:products,id', 'quantity' => 'integer|min:1']);
+        $request->validate([
+            'product_id' => 'required|exists:products,id', 
+            'quantity'   => 'integer|min:1',
+            'options'    => 'nullable|array'
+        ]);
+        
         $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
-        $item = CartItem::firstOrNew(['cart_id' => $cart->id, 'product_id' => $request->product_id]);
-        $item->quantity = ($item->quantity ?? 0) + ($request->quantity ?? 1);
-        $item->save();
+        
+        $selectedOptions = $request->input('options', []);
+        
+        // Intentamos encontrar un item existente con las mismas opciones
+        // Para simplificar, buscamos por JSON exacto si es posible, o simplemente creamos uno nuevo
+        // En MySQL/Laravel, comparar JSON exacto:
+        $item = CartItem::where('cart_id', $cart->id)
+            ->where('product_id', $request->product_id)
+            ->where('selected_options', json_encode($selectedOptions))
+            ->first();
+
+        if ($item) {
+            $item->increment('quantity', $request->input('quantity', 1));
+        } else {
+            $item = CartItem::create([
+                'cart_id'          => $cart->id,
+                'product_id'       => $request->product_id,
+                'quantity'         => $request->input('quantity', 1),
+                'selected_options' => $selectedOptions
+            ]);
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -176,10 +199,11 @@ class ConsumerController extends Controller
             $merchantSubtotals = [];
             foreach ($cart->items as $item) {
                 OrderItem::create([
-                    'order_id'   => $order->id,
-                    'product_id' => $item->product_id,
-                    'quantity'   => $item->quantity,
-                    'price'      => $item->product->price,
+                    'order_id'         => $order->id,
+                    'product_id'       => $item->product_id,
+                    'quantity'         => $item->quantity,
+                    'price'            => $item->product->price,
+                    'selected_options' => $item->selected_options,
                 ]);
                 
                 $item->product->decrement('stock', $item->quantity);

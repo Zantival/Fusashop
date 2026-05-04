@@ -31,12 +31,23 @@
           </div>
         </div>
 
-        <div class="flex gap-3 flex-wrap mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           @foreach($order->items as $item)
-          <div class="flex items-center gap-2 bg-surface-container-low rounded-xl px-3 py-2 text-sm">
-            <span class="font-medium text-on-background">{{ e($item->product->name ?? 'Producto') }}</span>
-            <span class="bg-surface-container rounded-full px-2 py-0.5 text-xs font-bold">x{{ $item->quantity }}</span>
-            <span class="text-primary font-semibold">${{ number_format($item->price,0,',','.') }}</span>
+          <div class="flex flex-col bg-surface-container-low rounded-xl px-4 py-3 text-sm">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-on-background">{{ e($item->product->name ?? 'Producto') }}</span>
+              <span class="bg-surface-container rounded-full px-2 py-0.5 text-[10px] font-black">x{{ $item->quantity }}</span>
+              <span class="text-primary font-black ml-auto">${{ number_format($item->price,0,',','.') }}</span>
+            </div>
+            @if($item->selected_options)
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                @foreach($item->selected_options as $key => $val)
+                  <span class="text-[9px] bg-white px-2 py-0.5 rounded border border-outline-variant/30 text-on-surface-variant">
+                    <span class="font-black opacity-50">{{ $key }}:</span> {{ $val }}
+                  </span>
+                @endforeach
+              </div>
+            @endif
           </div>
           @endforeach
         </div>
