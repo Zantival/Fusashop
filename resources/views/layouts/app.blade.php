@@ -12,14 +12,14 @@
 <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+{{-- <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> --}}
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="{{ asset('js/bootstrap.js') }}"></script>
-<script src="{{ asset('js/app.js') }}" defer></script>
+<script src="{{ asset('assets/js/bootstrap.js') }}"></script>
+<script src="{{ asset('assets/js/app.js') }}" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
 <style>
   [x-cloak] { display: none !important; visibility: hidden !important; }
@@ -38,9 +38,9 @@
   @font-face { font-family: 'Inter'; font-display: swap; }
   @font-face { font-family: 'Manrope'; font-display: swap; }
 </style>
-<script>
+{{-- <script>
 tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006c47","primary-container":"#00b67a","on-primary":"#ffffff","surface":"#fcf9f8","surface-container-lowest":"#ffffff","surface-container-low":"#f6f3f2","surface-container":"#f0eded","surface-container-highest":"#e5e2e1","on-surface":"#1b1c1c","on-surface-variant":"#3c4a41","background":"#fcf9f8","secondary-container":"#feb700","error":"#ba1a1a"},borderRadius:{lg:"0.5rem",xl:"1rem","2xl":"1.5rem"},fontFamily:{headline:["Manrope"],body:["Inter"]}}}}
-</script>
+</script> --}}
 @stack('styles')
 </head>
 <body class="bg-surface text-on-surface min-h-screen flex flex-col">
@@ -171,6 +171,9 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006c47","pr
         @auth
           <a href="{{ route('consumer.orders') }}" class="nav-link {{ request()->routeIs('consumer.orders') ? 'active' : '' }}">Pedidos</a>
           <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">Mensajes</a>
+          <a href="{{ route('consumer.support.contact') }}" class="nav-link {{ request()->routeIs('consumer.support.contact') ? 'active' : '' }} flex items-center gap-1">
+            <span class="material-symbols-outlined text-[18px]">support_agent</span> Soporte
+          </a>
         @endauth
       @elseif(auth()->user()->isMerchant())
         <a href="{{ route('merchant.dashboard') }}" class="nav-link {{ request()->routeIs('merchant.dashboard') ? 'active' : '' }}">Panel</a>
@@ -180,6 +183,9 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006c47","pr
         <a href="{{ route('merchant.finances') }}" class="nav-link {{ request()->routeIs('merchant.finances*') ? 'active' : '' }}">Finanzas</a>
         @if(\Illuminate\Support\Facades\Route::has('merchant.reviews'))<a href="{{ route('merchant.reviews') }}" class="nav-link {{ request()->routeIs('merchant.reviews') ? 'active' : '' }}">Reseñas</a>@endif
         <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">Mensajes</a>
+        <a href="{{ route('merchant.support.contact') }}" class="nav-link {{ request()->routeIs('merchant.support.contact') ? 'active' : '' }} flex items-center gap-1">
+          <span class="material-symbols-outlined text-[18px]">support_agent</span> Soporte
+        </a>
         <a href="{{ route('consumer.merchant.profile', auth()->id()) }}" target="_blank" class="px-3 py-1.5 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary/20 transition-all text-xs flex items-center gap-1 ml-2">
           <span class="material-symbols-outlined text-sm">visibility</span> Mi Tienda
         </a>
@@ -189,6 +195,7 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006c47","pr
         <a href="{{ route('analyst.orders') }}" class="nav-link {{ request()->routeIs('analyst.orders*') ? 'active' : '' }}">Pedidos</a>
         <a href="{{ route('analyst.payments') }}" class="nav-link {{ request()->routeIs('analyst.payments') ? 'active' : '' }}">Pagos</a>
         <a href="{{ route('analyst.banners') }}" class="nav-link {{ request()->routeIs('analyst.banners*') ? 'active' : '' }}">Banners</a>
+        <a href="{{ route('analyst.pqrs.index') }}" class="nav-link {{ request()->routeIs('analyst.pqrs.*') ? 'active' : '' }}">PQRS</a>
       @endif
     </nav>
   </div>
@@ -296,6 +303,11 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006c47","pr
           <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-on-surface hover:bg-surface-container-low rounded-xl transition-all group">
             <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary">chat</span> 
             <span class="font-semibold">Mensajes</span>
+          </a>
+
+          <a href="{{ route('pqrs.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-on-surface hover:bg-surface-container-low rounded-xl transition-all group">
+            <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary">assignment</span> 
+            <span class="font-semibold">PQRS / Soporte</span>
           </a>
 
           @if(auth()->user()->isAnalyst())
@@ -566,6 +578,17 @@ function updateNotifBadge() {
 setInterval(updateNotifBadge, 60000);
 @endauth
 </script>
+  @if(auth()->check() && (auth()->user()->isMerchant() || auth()->user()->isConsumer()))
+    <a href="{{ auth()->user()->isMerchant() ? route('merchant.support.contact') : route('consumer.support.contact') }}" 
+       class="fixed bottom-6 right-6 z-[60] flex items-center justify-center w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl hover:scale-110 hover:bg-indigo-700 transition-all group animate-bounce"
+       title="Contactar Administrador">
+      <span class="material-symbols-outlined text-3xl">support_agent</span>
+      <span class="absolute right-full mr-3 px-3 py-1 bg-[#1b1c1c] text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+        ¿Necesitas ayuda? Habla con Admin
+      </span>
+    </a>
+  @endif
+
   @stack('scripts')
 </body>
 </html>

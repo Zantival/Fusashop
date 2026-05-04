@@ -72,6 +72,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{user}/poll', [\App\Http\Controllers\ChatController::class, 'poll'])->name('chat.poll');
     Route::post('/chat', [\App\Http\Controllers\ChatController::class, 'store'])->name('chat.store');
     Route::delete('/chat/message/{id}', [\App\Http\Controllers\ChatController::class, 'destroy'])->name('chat.destroy');
+    
+    // PQRS
+    Route::get('/pqrs',          [\App\Http\Controllers\PQRSController::class, 'index'])->name('pqrs.index');
+    Route::get('/pqrs/create',   [\App\Http\Controllers\PQRSController::class, 'create'])->name('pqrs.create');
+    Route::post('/pqrs',         [\App\Http\Controllers\PQRSController::class, 'store'])->name('pqrs.store');
+    Route::get('/pqrs/{pqrs}',   [\App\Http\Controllers\PQRSController::class, 'show'])->name('pqrs.show');
 });
 
 // --- Cliente (Consumer) y Tienda Pública ---
@@ -80,6 +86,7 @@ Route::prefix('shop')->name('consumer.')->group(function () {
     Route::get('/',                    [ConsumerController::class, 'home'])->name('home');
     Route::get('/catalog',             [ConsumerController::class, 'catalog'])->name('catalog');
     Route::get('/product/{id}',        [ConsumerController::class, 'productDetail'])->name('product');
+    Route::get('/support/contact',     [ConsumerController::class, 'contactSupport'])->name('support.contact');
     Route::get('/directory',           [ConsumerController::class, 'merchantDirectory'])->name('directory');
     
     // RUTA CORREGIDA: Se asegura la estructura para evitar el error 404
@@ -103,6 +110,7 @@ Route::prefix('shop')->name('consumer.')->group(function () {
 Route::middleware(['auth', 'role:merchant'])->prefix('merchant')->name('merchant.')->group(function () {
     Route::get('/profile',         [MerchantController::class, 'onboardingProfile'])->name('profile');
     Route::post('/profile',        [MerchantController::class, 'storeProfile'])->name('profile.store');
+    Route::get('/support/contact', [MerchantController::class, 'contactSupport'])->name('support.contact');
 
     // Rutas que requieren aprobación de documentos (KYC/RUT)
     Route::middleware([\App\Http\Middleware\EnsureKycApproved::class])->group(function() {
@@ -119,6 +127,7 @@ Route::middleware(['auth', 'role:merchant'])->prefix('merchant')->name('merchant
         Route::get('/orders',                  [MerchantController::class, 'orders'])->name('orders');
         Route::patch('/orders/{order}/status', [MerchantController::class, 'orderUpdate'])->name('orders.update');
         Route::get('/reviews',                 [MerchantController::class, 'reviews'])->name('reviews');
+        Route::post('/reviews/{review}/reply', [MerchantController::class, 'replyToReview'])->name('reviews.reply');
         Route::get('/finances',                [MerchantController::class, 'finances'])->name('finances');
         Route::get('/banner-request',          [MerchantController::class, 'bannerRequest'])->name('banner.request');
         Route::post('/banner-request',         [MerchantController::class, 'bannerRequestStore'])->name('banner.request.store');
@@ -149,6 +158,10 @@ Route::middleware(['auth', 'role:analyst'])->prefix('admin')->name('analyst.')->
     Route::patch('/banners/{banner}/toggle',   [AnalystController::class, 'bannerToggle'])->name('banners.toggle');
     Route::delete('/banners/{banner}',         [AnalystController::class, 'bannerDelete'])->name('banners.delete');
     Route::get('/reviews-report',              [AnalystController::class, 'reviewsReport'])->name('reviews-report');
+    
+    // Gestión de PQRS
+    Route::get('/pqrs',                        [\App\Http\Controllers\PQRSController::class, 'adminIndex'])->name('pqrs.index');
+    Route::post('/pqrs/{pqrs}/reply',          [\App\Http\Controllers\PQRSController::class, 'adminReply'])->name('pqrs.reply');
 });
 
 // --- Servidor de Archivos Locales (Simulación de Storage público) ---

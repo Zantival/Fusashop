@@ -2,7 +2,7 @@
 export default {
     content: [
         "./resources/views/**/*.blade.php",
-        "./public/js/**/*.js",
+        "./public/assets/js/**/*.js",
     ],
     darkMode: 'class',
     theme: {

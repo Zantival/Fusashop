@@ -5,21 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Review extends Model
+class PQRS extends Model
 {
-    protected $fillable = [
-        'product_id',
-        'user_id',
-        'rating',
-        'comment',
-        'merchant_reply',
-        'replied_at',
-    ];
+    protected $table = 'p_q_r_s';
 
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
+    protected $fillable = [
+        'user_id',
+        'type',
+        'subject',
+        'content',
+        'status',
+        'admin_response',
+        'resolved_at',
+    ];
 
     public function user(): BelongsTo
     {

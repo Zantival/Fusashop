@@ -340,4 +340,13 @@ class ConsumerController extends Controller
 
         return back()->with('success', 'Gracias por tu valoración.');
     }
+
+    public function contactSupport()
+    {
+        $admin = \App\Models\User::where('role', 'analyst')->first();
+        if (!$admin) {
+            return back()->with('error', 'No hay administradores disponibles en este momento.');
+        }
+        return redirect()->route('chat.show', $admin->id);
+    }
 }

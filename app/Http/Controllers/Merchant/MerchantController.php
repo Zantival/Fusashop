@@ -315,6 +315,23 @@ class MerchantController extends Controller
         return view('merchant.reviews', compact('reviews', 'avgRating'));
     }
 
+    public function replyToReview(Request $request, Review $review)
+    {
+        $request->validate(['merchant_reply' => 'required|string|max:1000']);
+        
+        $productIds = Auth::user()->products()->pluck('id')->toArray();
+        if (!in_array($review->product_id, $productIds)) {
+            abort(403);
+        }
+
+        $review->update([
+            'merchant_reply' => strip_tags($request->merchant_reply),
+            'replied_at' => now(),
+        ]);
+
+        return back()->with('success', 'Respuesta enviada exitosamente.');
+    }
+
     public function bannerRequest()
     {
         return view('merchant.request-banner');
@@ -410,5 +427,14 @@ class MerchantController extends Controller
         return view('merchant.finances', compact(
             'grossSales', 'pointsDiscounts', 'adSpend', 'realIncome', 'lowStockProducts'
         ));
+    }
+
+    public function contactSupport()
+    {
+        $admin = \App\Models\User::where('role', 'analyst')->first();
+        if (!$admin) {
+            return back()->with('error', 'No hay administradores disponibles en este momento.');
+        }
+        return redirect()->route('chat.show', $admin->id);
     }
 }

@@ -157,6 +157,15 @@
         <span class="material-symbols-outlined text-sm">add_photo_alternate</span> Solicitar espacio
       </a>
     </div>
+
+    <div class="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg overflow-hidden relative group">
+      <span class="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl opacity-20 group-hover:scale-110 transition-transform">support_agent</span>
+      <h3 class="font-['Manrope'] font-bold text-lg mb-1">Soporte Técnico</h3>
+      <p class="text-white/80 text-sm mb-4">¿Tienes dudas o problemas? Comunícate directamente con un administrador.</p>
+      <a href="{{ route('merchant.support.contact') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-600 font-bold rounded-xl hover:bg-opacity-95 transition-all shadow-md text-sm">
+        <span class="material-symbols-outlined text-sm">chat</span> Hablar con Admin
+      </a>
+    </div>
   </div>
 </div>
 @endsection

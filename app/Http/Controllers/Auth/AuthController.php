@@ -72,6 +72,9 @@ class AuthController extends Controller
             Cart::create(['user_id' => $user->id]);
         }
 
+        // Notificar al usuario sobre su registro
+        $user->notify(new \App\Notifications\WelcomeNotification());
+
         Auth::login($user);
         $request->session()->regenerate();
 
