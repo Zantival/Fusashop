@@ -19,6 +19,15 @@
 .form-enter:nth-child(2) { animation-delay: 0.2s; }
 .form-enter:nth-child(3) { animation-delay: 0.3s; }
 
+.role-input:checked + .role-box {
+  border-color: #006c47 !important;
+  background-color: rgba(0, 108, 71, 0.05) !important;
+  box-shadow: 0 0 0 4px rgba(0, 108, 71, 0.1) !important;
+}
+.role-input:checked + .role-box .role-icon {
+  color: #006c47 !important;
+}
+
 .input-wrap {
   display: flex; align-items: center;
   background: var(--surface-container); border-radius: 1rem; border: 2px solid transparent;
@@ -97,22 +106,26 @@
         <div class="form-enter">
           <label class="block text-sm font-bold text-on-surface mb-3">¿Qué rol tendrás?</label>
           <div class="grid grid-cols-2 gap-3">
-            <label class="relative cursor-pointer group">
-              <input type="radio" name="role" value="consumer" class="sr-only peer" {{ old('role','consumer')==='consumer' ? 'checked' : '' }} required/>
-              <div class="flex flex-col items-center gap-2 p-3 bg-surface-container rounded-xl border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
-                <span class="material-symbols-outlined text-primary">shopping_bag</span>
-                <span class="text-xs font-bold text-on-surface">Comprar</span>
+            <!-- Comprar -->
+            <label class="relative cursor-pointer block h-full">
+              <input type="radio" name="role" value="consumer" class="role-input absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer" {{ old('role','consumer')==='consumer' ? 'checked' : '' }} required/>
+              <div class="role-box flex flex-col items-center gap-2 p-4 bg-surface-container rounded-2xl border-2 border-transparent transition-all h-full relative z-10">
+                <span class="material-symbols-outlined role-icon text-on-surface-variant text-3xl">shopping_bag</span>
+                <span class="text-sm font-bold text-on-surface">Comprar</span>
               </div>
             </label>
-            <label class="relative cursor-pointer group">
-              <input type="radio" name="role" value="merchant" class="sr-only peer" {{ old('role')==='merchant' ? 'checked' : '' }}/>
-              <div class="flex flex-col items-center gap-2 p-3 bg-surface-container rounded-xl border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
-                <span class="material-symbols-outlined text-primary">storefront</span>
-                <span class="text-xs font-bold text-on-surface">Vender</span>
+            <!-- Vender -->
+            <label class="relative cursor-pointer block h-full">
+              <input type="radio" name="role" value="merchant" class="role-input absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer" {{ old('role')==='merchant' ? 'checked' : '' }}/>
+              <div class="role-box flex flex-col items-center gap-2 p-4 bg-surface-container rounded-2xl border-2 border-transparent transition-all h-full relative z-10">
+                <span class="material-symbols-outlined role-icon text-on-surface-variant text-3xl">storefront</span>
+                <span class="text-sm font-bold text-on-surface">Vender</span>
               </div>
             </label>
           </div>
         </div>
+
+
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-enter md:col-span-2">

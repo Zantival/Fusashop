@@ -75,6 +75,12 @@ class AuthController extends Controller
         // Notificar al usuario sobre su registro
         $user->notify(new \App\Notifications\WelcomeNotification());
 
+        // Notificar a los analistas sobre la nueva cuenta
+        $analysts = User::where('role', 'analyst')->get();
+        foreach ($analysts as $analyst) {
+            $analyst->notify(new \App\Notifications\NewUserNotification($user));
+        }
+
         Auth::login($user);
         $request->session()->regenerate();
 

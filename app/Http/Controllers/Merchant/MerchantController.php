@@ -160,6 +160,13 @@ class MerchantController extends Controller
 
         $profile->save();
 
+        if ($profile->kyc_status === 'pending') {
+            $analysts = \App\Models\User::where('role', 'analyst')->get();
+            foreach ($analysts as $analyst) {
+                $analyst->notify(new \App\Notifications\NewMerchantProfileNotification($profile));
+            }
+        }
+
         return back()->with('success', 'Cambios guardados exitosamente.');
     }
 

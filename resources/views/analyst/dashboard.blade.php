@@ -136,20 +136,38 @@
       @else
         <div class="space-y-4">
           @foreach($pendingKyc as $kyc)
-          <div class="flex items-center justify-between p-4 bg-secondary-fixed/50 border border-secondary-fixed rounded-xl border-dashed">
-            <div>
-              <p class="font-bold text-on-background text-sm flex items-center gap-1">{{ e($kyc->company_name) }} <span class="material-symbols-outlined text-[12px] text-secondary">hourglass_empty</span></p>
-              <p class="text-xs text-on-surface-variant">Vendedor: {{ e($kyc->user->name) }}</p>
+          <div class="p-5 bg-surface-container-low border border-surface-container-high rounded-2xl shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+              <div>
+                <p class="font-bold text-on-background text-lg flex items-center gap-2">
+                  {{ e($kyc->company_name) }} 
+                  <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-black rounded-full uppercase tracking-tighter">Pendiente</span>
+                </p>
+                <p class="text-xs text-on-surface-variant">Representante: {{ e($kyc->user->name) }} · {{ e($kyc->user->email) }}</p>
+              </div>
+              <div class="flex gap-2">
+                <a href="{{ route('analyst.users.rut', $kyc->merchant_id) }}" target="_blank" class="px-3 py-2 bg-surface-container-high text-on-surface text-xs font-bold rounded-xl hover:bg-surface-container-highest flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px]">description</span> Ver RUT
+                </a>
+                <a href="{{ route('analyst.users.edit', $kyc->merchant_id) }}" class="px-3 py-2 bg-surface-container-high text-on-surface text-xs font-bold rounded-xl hover:bg-surface-container-highest flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px]">visibility</span> Ver Todo
+                </a>
+              </div>
             </div>
-            <div class="flex gap-2">
-              <a href="{{ route('analyst.users.rut', $kyc->merchant_id) }}" target="_blank" class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">picture_as_pdf</span> RUT</a>
+
+            <form method="POST" action="{{ route('analyst.users.kyc', $kyc->merchant_id) }}" class="space-y-3">
+              @csrf
+              <textarea name="kyc_notes" placeholder="Motivo de rechazo (opcional si apruebas)" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-3 text-xs outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none" rows="2"></textarea>
               
-              <form method="POST" action="{{ route('analyst.users.kyc', $kyc->merchant_id) }}">
-                @csrf
-                <input type="hidden" name="kyc_status" value="approved">
-                <button type="submit" class="px-3 py-1.5 bg-[#00b67a] text-white text-xs font-bold rounded-lg hover:opacity-90">Aprobar</button>
-              </form>
-            </div>
+              <div class="flex gap-2">
+                <button type="submit" name="kyc_status" value="approved" class="flex-1 py-2 bg-[#00b67a] text-white text-xs font-bold rounded-xl hover:opacity-90 shadow-md shadow-[#00b67a]/20 transition-all flex items-center justify-center gap-1">
+                  <span class="material-symbols-outlined text-[16px]">check_circle</span> Aprobar Cuenta
+                </button>
+                <button type="submit" name="kyc_status" value="rejected" class="flex-1 py-2 bg-error text-white text-xs font-bold rounded-xl hover:opacity-90 shadow-md shadow-error/20 transition-all flex items-center justify-center gap-1">
+                  <span class="material-symbols-outlined text-[16px]">cancel</span> Rechazar con Comentario
+                </button>
+              </div>
+            </form>
           </div>
           @endforeach
         </div>

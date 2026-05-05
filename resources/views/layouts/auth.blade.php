@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <script src="{{ asset('assets/js/bootstrap.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}" defer></script>
     

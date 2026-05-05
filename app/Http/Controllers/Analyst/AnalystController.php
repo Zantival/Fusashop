@@ -134,10 +134,23 @@ class AnalystController extends Controller
 
     public function updateKyc(Request $request, User $user)
     {
-        $request->validate(['kyc_status' => 'required|in:pending,approved,rejected']);
+        $request->validate([
+            'kyc_status' => 'required|in:approved,rejected',
+            'kyc_notes'  => 'nullable|string|max:1000',
+        ]);
+
         $profile = $user->companyProfile;
-        if ($profile) $profile->update(['kyc_status' => $request->kyc_status]);
-        return back()->with('success', 'Estado KYC actualizado.');
+        if ($profile) {
+            $profile->update([
+                'kyc_status' => $request->kyc_status,
+                'kyc_notes'  => $request->kyc_notes,
+            ]);
+
+            // Notify the merchant
+            $user->notify(new \App\Notifications\KycDecisionNotification($profile));
+        }
+
+        return back()->with('success', 'Estado KYC actualizado y comerciante notificado.');
     }
 
     public function orders(Request $request)
