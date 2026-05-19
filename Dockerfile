@@ -43,4 +43,4 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
-CMD ["apache2-foreground"]
+CMD ["sh", "-c", "a2dismod mpm_event || true && a2dismod mpm_worker || true && a2enmod mpm_prefork || true && apache2-foreground"]
