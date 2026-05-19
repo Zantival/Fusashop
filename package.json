@@ -3,9 +3,10 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "npm run css:build",
+        "build": "npm run css:build && npm run copy:public-to-dist",
         "css:build": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/app.css --minify",
-        "css:watch": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/app.css --watch"
+        "css:watch": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/app.css --watch",
+        "copy:public-to-dist": "rm -rf dist && cp -r public dist"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.2.4",
