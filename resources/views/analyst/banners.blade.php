@@ -43,8 +43,8 @@
         <input type="url" name="link_url" class="w-full rounded-xl border border-outline-variant px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/40 focus:outline-none" placeholder="https://...">
       </div>
       <div>
-        <label class="block text-sm font-semibold text-on-surface-variant mb-1">Imagen * (JPG/PNG/WEBP, máx 3MB)</label>
-        <input type="file" name="image" accept="image/*" required
+        <label class="block text-sm font-semibold text-on-surface-variant mb-1">Imagen o Video * (JPG/PNG/WEBP/MP4, máx 10MB)</label>
+        <input type="file" name="image" accept="image/*,video/*" required
                class="w-full text-sm text-on-surface-variant file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
       </div>
       <div>
@@ -74,7 +74,12 @@
       @foreach($banners as $banner)
       <div class="bg-surface-container-lowest rounded-2xl shadow-card overflow-hidden border {{ $banner->is_active ? 'border-primary/30' : 'border-outline-variant/30 opacity-60' }}">
         <div class="w-full h-36 bg-surface-container-low flex items-center justify-center overflow-hidden">
-          <img src="{{ asset('storage/'.$banner->image_path) }}" class="max-w-full max-h-full object-contain">
+          @php $isVideo = in_array(pathinfo($banner->image_path, PATHINFO_EXTENSION), ['mp4', 'webm', 'mov']); @endphp
+          @if($isVideo)
+            <video src="{{ asset('storage/'.$banner->image_path) }}" class="max-w-full max-h-full object-contain" autoplay loop muted playsinline></video>
+          @else
+            <img src="{{ asset('storage/'.$banner->image_path) }}" class="max-w-full max-h-full object-contain">
+          @endif
         </div>
         <div class="p-4">
           <div class="flex items-center justify-between">

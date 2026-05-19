@@ -243,21 +243,237 @@ $specLabels = [
   </div>
 </div>
 
-{{-- Opiniones --}}
-<div class="max-w-7xl mx-auto px-4 md:px-6 py-12">
-  <div class="border-b border-white/10 pb-4 mb-8 flex items-center justify-between"><h2 class="text-2xl font-bold text-white">Opiniones</h2></div>
-  @forelse($product->reviews as $rev)
-    <div class="flex gap-4 py-5 border-b border-white/5 last:border-0">
-      <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center font-bold text-white shrink-0">{{ strtoupper(substr($rev->user->name ?? 'A',0,1)) }}</div>
-      <div class="flex-1">
-        <div class="flex items-center justify-between mb-1"><p class="font-bold text-sm text-white">{{ e($rev->user->name) }}</p><div class="flex gap-0.5">@for($i=1;$i<=5;$i++)<span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' {{ $i<=$rev->rating?1:0 }};color:{{ $i<=$rev->rating?'#feb700':'rgba(255,255,255,.1)' }}">star</span>@endfor</div></div>
-        <p class="text-sm text-white/60">{{ e($rev->comment) }}</p>
+{{-- Rediseño de Opiniones Premium --}}
+<section class="relative bg-surface py-20 border-t border-surface-container-low overflow-hidden">
+  {{-- Sutil resplandor de fondo verde similar a la foto de referencia --}}
+  <div class="absolute top-0 left-0 w-[500px] h-[500px] rounded-full pointer-events-none opacity-20 filter blur-[80px]" style="background: radial-gradient(circle, rgba(110,252,185,0.4) 0%, transparent 70%);"></div>
+
+  <div class="max-w-4xl mx-auto px-4 md:px-6 relative z-10">
+    
+    {{-- Cabecera de la Sección --}}
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#6efcb9]/15 text-[#006c47] rounded-full text-xs font-extrabold mb-4 uppercase tracking-wider animate-pulse-soft">
+        Comunidad FusaShop
+      </div>
+      <h2 class="text-3xl md:text-5xl font-black text-on-surface leading-tight tracking-tight mb-4">
+        Lo que dicen de nosotros
+      </h2>
+      <p class="text-sm md:text-base text-on-surface-variant max-w-xl mx-auto leading-relaxed">
+        Descubre las historias reales de nuestra comunidad. Productos locales seleccionados con amor, pensados para un estilo de vida consciente y sostenible en Fusagasugá.
+      </p>
+    </div>
+
+    {{-- Grid de Estadísticas (4 Tarjetas) --}}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+      <div class="bg-white dark:bg-surface-container-low border border-surface-container/60 rounded-2xl p-5 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-300">
+        <p class="text-2xl md:text-3xl font-black text-[#006c47] tracking-tight mb-1">
+          {{ $avgRating > 0 ? number_format($avgRating, 1) : '5.0' }}/5
+        </p>
+        <p class="text-[10px] md:text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+          Valoración Media
+        </p>
+      </div>
+
+      <div class="bg-white dark:bg-surface-container-low border border-surface-container/60 rounded-2xl p-5 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-300">
+        <p class="text-2xl md:text-3xl font-black text-[#006c47] tracking-tight mb-1">
+          {{ max($product->reviews->count(), 0) }}
+        </p>
+        <p class="text-[10px] md:text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+          Clientes Felices
+        </p>
+      </div>
+
+      <div class="bg-white dark:bg-surface-container-low border border-surface-container/60 rounded-2xl p-5 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-300">
+        <p class="text-2xl md:text-3xl font-black text-[#006c47] tracking-tight mb-1">
+          100%
+        </p>
+        <p class="text-[10px] md:text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+          Apoyo Local
+        </p>
+      </div>
+
+      <div class="bg-white dark:bg-surface-container-low border border-surface-container/60 rounded-2xl p-5 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-300">
+        <p class="text-2xl md:text-3xl font-black text-[#006c47] tracking-tight mb-1">
+          24h
+        </p>
+        <p class="text-[10px] md:text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+          Envío Promedio
+        </p>
       </div>
     </div>
-  @empty
-    <p class="text-sm text-white/40 italic py-8 text-center">Aún no hay reseñas.</p>
-  @endforelse
-</div>
+
+    {{-- Lista de Opiniones (Testimonios) --}}
+    <div class="space-y-6 mb-16">
+      @forelse($product->reviews as $rev)
+        @php
+          // Generar avatar dinámico único basado en el nombre del usuario
+          $hue = crc32($rev->user->name ?? 'A') % 360;
+          $avatarBg = "hsl({$hue}, 40%, 93%)";
+          $avatarText = "hsl({$hue}, 60%, 25%)";
+        @endphp
+        <div class="bg-white dark:bg-surface-container-low border border-surface-container/50 rounded-2xl p-6 md:p-8 shadow-[0_8px_30px_rgba(27,28,28,0.03)] hover:shadow-lg transition-all duration-300 relative group">
+          
+          {{-- Comillas estilizadas (Adorno de fondo en top right) --}}
+          <div class="absolute top-6 right-8 text-5xl font-serif text-[#6efcb9]/25 select-none transition-transform duration-300 group-hover:scale-110">
+            ”
+          </div>
+
+          {{-- Estrellas de la reseña --}}
+          <div class="flex gap-0.5 mb-4">
+            @for($i=1;$i<=5;$i++)
+              <span class="material-symbols-outlined text-[20px]" 
+                    style="font-variation-settings:'FILL' {{ $i<=$rev->rating?1:0 }}; color: {{ $i<=$rev->rating?'#feb700':'rgba(0,0,0,0.1)' }}">
+                star
+              </span>
+            @endfor
+          </div>
+
+          {{-- Comentario / Texto de la reseña --}}
+          <blockquote class="text-sm md:text-base text-on-surface font-medium leading-relaxed mb-6 italic">
+            "{{ e($rev->comment) }}"
+          </blockquote>
+
+          {{-- Información de Autor --}}
+          <div class="flex items-center gap-3.5 pt-4 border-t border-surface-container/40">
+            @if($rev->user->avatar)
+              <img src="{{ Storage::url($rev->user->avatar) }}" class="w-11 h-11 rounded-full object-cover shadow-inner">
+            @else
+              <div class="w-11 h-11 rounded-full flex items-center justify-center font-black text-sm shrink-0 shadow-inner"
+                   style="background: {{ $avatarBg }}; color: {{ $avatarText }}">
+                {{ strtoupper(substr($rev->user->name ?? 'A', 0, 1)) }}
+              </div>
+            @endif
+            
+            <div>
+              <p class="font-black text-sm text-on-surface leading-tight">
+                {{ e($rev->user->name) }}
+              </p>
+              <div class="flex items-center gap-1 mt-1 text-[10px] md:text-xs text-primary font-bold">
+                <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'wght' 600">verified</span>
+                Comprador Verificado
+              </div>
+            </div>
+          </div>
+
+        </div>
+      @empty
+        <div class="bg-white dark:bg-surface-container-low border border-dashed border-surface-container rounded-2xl py-12 text-center shadow-[0_4px_20px_rgba(0,0,0,0.01)]">
+          <span class="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-3" style="font-variation-settings:'FILL' 1">rate_review</span>
+          <p class="text-sm text-on-surface-variant/60 font-semibold italic">Aún no hay reseñas. ¡Sé el primero en calificar este producto!</p>
+        </div>
+      @endforelse
+    </div>
+
+    {{-- Bloque CTA de Compartir Experiencia con Alpine.js para la reseña interactiva --}}
+    <div x-data="{ openForm: false }" 
+         class="border border-[#6efcb9]/20 rounded-3xl p-8 md:p-12 text-center shadow-xl relative overflow-hidden group"
+         style="background: linear-gradient(135deg, #003822 0%, #002214 100%);">
+      
+      {{-- Decoración de Fondo --}}
+      <div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-[#6efcb9]/5 pointer-events-none filter blur-2xl transition-transform duration-500 group-hover:scale-125"></div>
+      
+      <div x-show="!openForm" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" class="max-w-lg mx-auto">
+        <h3 class="text-xl md:text-3xl font-black text-white mb-3">
+          ¿Quieres compartir tu experiencia?
+        </h3>
+        <p class="text-xs md:text-sm text-white/70 leading-relaxed mb-6">
+          Tu opinión ayuda a otros miembros de nuestra comunidad a tomar decisiones más conscientes.
+        </p>
+
+        @auth
+          @if($hasPurchased)
+            <button @click="openForm = true" 
+                    class="px-8 py-3 font-black rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md"
+                    style="background-color: #6efcb9; color: #003822;">
+              Escribir una reseña
+            </button>
+          @else
+            <div class="inline-flex flex-col items-center gap-2 max-w-sm mx-auto">
+              <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-2xl text-[11px] md:text-xs text-white/80 font-bold leading-normal">
+                ℹ Solo puedes calificar los productos que has comprado y recibido. ¡Apoya lo local comprando ahora!
+              </span>
+            </div>
+          @endif
+        @else
+          <a href="{{ route('login') }}?intended={{ urlencode(request()->fullUrl()) }}" 
+             class="inline-block px-8 py-3 font-black rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 no-underline shadow-md"
+             style="background-color: #6efcb9; color: #003822;">
+            Iniciar sesión para opinar
+          </a>
+        @endauth
+      </div>
+
+      {{-- Formulario Interactivo (Alpine.js) --}}
+      @auth
+        @if($hasPurchased)
+          <div x-show="openForm" 
+               x-transition:enter="transition ease-out duration-300" 
+               x-transition:enter-start="opacity-0 scale-95" 
+               x-transition:enter-end="opacity-100 scale-100" 
+               class="max-w-lg mx-auto text-left"
+               x-cloak>
+            
+            <div class="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+              <h4 class="text-lg font-black text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary-light">rate_review</span> Escribir una Reseña
+              </h4>
+              <button @click="openForm = false" class="text-white/60 hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+
+            <form method="POST" action="{{ route('consumer.product.review', $product->id) }}" class="space-y-6">
+              @csrf
+              
+              {{-- Selección de Calificación Interactiva con estrellas --}}
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-white/80 uppercase tracking-wider">Tu Calificación</label>
+                <div x-data="{ rating: 5, hoverRating: 0 }" class="flex items-center gap-1.5 py-2">
+                  <input type="hidden" name="rating" :value="rating">
+                  <template x-for="i in 5">
+                    <button type="button" 
+                            @click="rating = i" 
+                            @mouseover="hoverRating = i" 
+                            @mouseleave="hoverRating = 0"
+                            class="transition-transform duration-100 active:scale-90 hover:scale-110 focus:outline-none">
+                      <span class="material-symbols-outlined text-3xl cursor-pointer"
+                            :style="'font-variation-settings:\'FILL\' ' + (i <= (hoverRating || rating) ? 1 : 0) + '; color: ' + (i <= (hoverRating || rating) ? '#feb700' : 'rgba(255,255,255,0.25)')">
+                        star
+                      </span>
+                    </button>
+                  </template>
+                  <span class="text-xs font-extrabold text-white/60 ml-2" x-text="rating + ' / 5 Estrellas'"></span>
+                </div>
+              </div>
+
+              {{-- Comentario --}}
+              <div class="space-y-2">
+                <label for="comment" class="block text-xs font-bold text-white/80 uppercase tracking-wider">Tu Comentario</label>
+                <textarea id="comment" name="comment" rows="4" required
+                          class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-[#6efcb9]/50 focus:border-[#6efcb9] focus:outline-none transition-all resize-none"
+                          placeholder="Cuéntanos qué te pareció el producto, el envío o la atención..."></textarea>
+              </div>
+
+              <div class="flex items-center gap-3 pt-2">
+                <button type="submit" 
+                        class="flex-1 py-3 px-6 font-black rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md text-center text-sm"
+                        style="background-color: #6efcb9; color: #003822;">
+                  Enviar Valoración
+                </button>
+                <button type="button" @click="openForm = false" class="py-3 px-6 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded-full transition-all text-sm">
+                  Cancelar
+                </button>
+              </div>
+
+            </form>
+          </div>
+        @endif
+      @endauth
+
+    </div>
+
+  </div>
+</section>
 
 <style>
 .pd-hero { position: relative; overflow: hidden; padding-bottom: 3rem; contain: layout style; }

@@ -453,7 +453,7 @@ class MerchantController extends Controller
     public function bannerRequestStore(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:3072',
+            'image' => 'required|file|mimes:jpg,jpeg,png,webp,mp4,webm,mov|max:10240',
             'notes' => 'nullable|string|max:1000'
         ]);
 

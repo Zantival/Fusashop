@@ -14,9 +14,9 @@
       <h2 class="font-bold text-on-background font-['Manrope'] text-lg">Información del Banner</h2>
 
       <div>
-        <label class="block text-sm font-semibold text-on-surface-variant mb-1">Imagen del Banner (JPG/PNG) *</label>
-        <p class="text-xs text-on-surface-variant/70 mb-2">Recomendamos una imagen horizontal de alta calidad (ej. 1920x1080).</p>
-        <input type="file" name="image" accept="image/*" required
+        <label class="block text-sm font-semibold text-on-surface-variant mb-1">Imagen o Video Publicitario del Banner *</label>
+        <p class="text-xs text-on-surface-variant/70 mb-2">Sube una imagen horizontal (JPG/PNG/WEBP) o un video promocional corto (MP4/WEBM/MOV, máx. 10MB).</p>
+        <input type="file" name="image" accept="image/*,video/*" required
                class="w-full text-sm text-on-surface-variant file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
       </div>
 

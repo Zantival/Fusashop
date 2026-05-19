@@ -2,30 +2,66 @@
 @section('title','Inicio')
 @section('content')
 
-{{-- Global Admin Banners --}}
+@php
+  // Map category names to Material Symbols icons
+  $iconMap = [
+      'Tecnología' => 'devices',
+      'Celulares' => 'smartphone',
+      'Computadores' => 'laptop_mac',
+      'Televisores' => 'tv',
+      'Electrónica' => 'devices',
+      'Electrohogar' => 'kitchen',
+      'Electro' => 'kitchen',
+      'Hogar' => 'home',
+      'Cocina' => 'kitchen',
+      'Moda' => 'apparel',
+      'Ropa' => 'apparel',
+      'Deportes' => 'sports_soccer',
+      'Alimentos' => 'eco',
+      'Orgánico' => 'local_mall',
+  ];
+@endphp
+
+{{-- ── 1. Banner Carousel Principal (Inicio del Dashboard) ── --}}
 @if(isset($globalBanners) && $globalBanners->isNotEmpty())
-  {{-- ── Banner Carousel ── --}}
-  <div class="w-full relative bg-surface" id="global-banner-wrap">
+  @php
+    // Use the first 2 banners for the top carousel
+    $topBanners = $globalBanners->take(2);
+    // The rest will go in the middle of the dashboard
+    $midBanners = $globalBanners->slice(2);
+  @endphp
+  <div class="w-full relative bg-surface border-b border-surface-container-high shadow-sm" id="global-banner-wrap">
     <div class="grid w-full">
-      @foreach($globalBanners as $gi => $gb)
-        @php $url = asset('storage/'.$gb->image_path); @endphp
+      @foreach($topBanners as $gi => $gb)
+        @php
+          $url = asset('storage/'.$gb->image_path);
+          $isVideo = in_array(pathinfo($gb->image_path, PATHINFO_EXTENSION), ['mp4', 'webm', 'mov']);
+        @endphp
         <div class="col-start-1 row-start-1 transition-opacity duration-1000 ease-in-out {{ $gi===0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}" id="gb-{{$gi}}">
           @if($gb->link_url)
             <a href="{{ $gb->link_url }}" target="_blank" class="block w-full h-full">
+              @if($isVideo)
+                <video src="{{ $url }}" class="w-full h-auto block" autoplay loop muted playsinline></video>
+              @else
+                <img src="{{ $url }}" class="w-full h-auto block" alt="{{ $gb->title ?? 'Banner' }}" 
+                     loading="{{ $gi===0 ? 'eager' : 'lazy' }}" 
+                     fetchpriority="{{ $gi===0 ? 'high' : 'auto' }}"
+                     decoding="async">
+              @endif
+            </a>
+          @else
+            @if($isVideo)
+              <video src="{{ $url }}" class="w-full h-auto block" autoplay loop muted playsinline></video>
+            @else
               <img src="{{ $url }}" class="w-full h-auto block" alt="{{ $gb->title ?? 'Banner' }}" 
                    loading="{{ $gi===0 ? 'eager' : 'lazy' }}" 
                    fetchpriority="{{ $gi===0 ? 'high' : 'auto' }}"
                    decoding="async">
-            </a>
-          @else
-            <img src="{{ $url }}" class="w-full h-auto block" alt="{{ $gb->title ?? 'Banner' }}" 
-                 loading="{{ $gi===0 ? 'eager' : 'lazy' }}" 
-                 fetchpriority="{{ $gi===0 ? 'high' : 'auto' }}"
-                 decoding="async">
+            @endif
           @endif
 
           @if(($gb->title && $gb->title !== 'Bienvenido') || (isset($gb->subtitle) && $gb->subtitle))
-            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 pointer-events-none bg-gradient-to-t from-black/40 to-transparent">
+            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 pointer-events-none bg-gradient-to-t from-black/50 to-transparent">
               <div class="max-w-7xl mx-auto">
                 @if($gb->title && $gb->title !== 'Bienvenido')
                   <p class="text-white font-black text-2xl md:text-5xl drop-shadow-lg leading-tight mb-2" style="font-family:'Manrope',sans-serif">{{ $gb->title }}</p>
@@ -41,19 +77,19 @@
     </div>
 
     {{-- Dot indicators --}}
-    @if($globalBanners->count() > 1)
+    @if($topBanners->count() > 1)
       <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2" id="gb-dots">
-        @foreach($globalBanners as $gi => $gb)
+        @foreach($topBanners as $gi => $gb)
           <button onclick="gbGoTo({{ $gi }})" id="gb-dot-{{ $gi }}" class="w-2 h-2 rounded-full transition-all duration-300 {{ $gi===0 ? 'bg-white scale-125' : 'bg-white/40' }}"></button>
         @endforeach
       </div>
     @endif
   </div>
 
-  @if($globalBanners->count() > 1)
+  @if($topBanners->count() > 1)
   <script>
   (function(){
-    let ci = 0, total = {{ $globalBanners->count() }}, timer;
+    let ci = 0, total = {{ $topBanners->count() }}, timer;
     function gbGoTo(idx) {
       document.getElementById('gb-'+ci)?.classList.replace('opacity-100','opacity-0');
       document.getElementById('gb-'+ci)?.classList.replace('z-10','z-0');
@@ -78,61 +114,232 @@
       <span class="inline-block px-4 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold tracking-widest uppercase mb-4">Bienvenido a FusaShop</span>
       <h2 class="text-white font-black text-3xl md:text-5xl leading-tight mb-3" style="font-family:'Manrope',sans-serif">Cultivando tu<br><span class="text-[#6efcb9]">Crecimiento Digital.</span></h2>
       <p class="text-white/80 text-sm md:text-lg max-w-lg">Descubre productos únicos de comerciantes locales de Fusagasugá.</p>
-      <a href="{{ route('consumer.catalog') }}" class="mt-6 inline-flex items-center gap-2 px-7 py-3 bg-white text-[#006c47] font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm md:text-base">
+      <a href="{{ route('consumer.catalog') }}" class="mt-6 inline-flex items-center gap-2 px-7 py-3 bg-white text-[#006c47] font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm md:text-base no-underline">
         <span class="material-symbols-outlined text-sm">storefront</span> Ver Catálogo
       </a>
     </div>
   </div>
 @endif
 
-{{-- Hero --}}
-<section class="relative px-6 py-14 md:py-24 overflow-hidden bg-[#fcf9f8]">
-  <div class="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-3xl pointer-events-none" style="background:radial-gradient(circle,rgba(0,182,122,.12),transparent 70%)"></div>
-  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-    <div>
-      <span class="inline-block px-4 py-1.5 rounded-full bg-[#ffdea8] text-[#271900] text-xs font-bold tracking-widest uppercase mb-5">Empowering MiPymes · Fusagasugá</span>
-      <h1 class="text-5xl md:text-6xl font-['Manrope'] font-extrabold leading-tight text-[#1b1c1c] mb-5">
-        Cultivando tu<br/><span style="color:#006c47" class="italic">Crecimiento Digital.</span>
-      </h1>
-      <p class="text-lg text-[#3c4a41] max-w-lg mb-8 leading-relaxed">Descubre productos únicos de comerciantes locales. Apoya las MiPymes de tu región.</p>
-      <a href="{{ route('consumer.catalog') }}" class="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg text-lg" style="background:linear-gradient(135deg,#006c47,#00b67a)">
-        <span class="material-symbols-outlined text-sm">storefront</span> Ver Catálogo
-      </a>
+{{-- ── 2. Cinta Horizontal de Beneficios (Ribbon) ── --}}
+<div class="w-full text-white py-4 border-y border-[#6efcb9]/20 shadow-md" style="background-color: #003822;">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 items-center text-center">
+    <div class="flex items-center gap-2.5 justify-center">
+      <span class="material-symbols-outlined text-[#6efcb9] text-2xl">storefront</span>
+      <div class="text-left">
+        <p class="text-xs md:text-sm font-black tracking-wide leading-tight">100% Comercio Local</p>
+        <p class="text-[10px] text-white/70">Apoya MiPymes de Fusagasugá</p>
+      </div>
     </div>
-    <div class="hidden lg:grid grid-cols-2 gap-4">
-      @foreach($featured->take(4) as $p)
-      <a href="{{ route('consumer.product', $p->id) }}" class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all group">
-        <div class="aspect-square overflow-hidden">
-          <x-product-image :product="$p" class="w-full h-full group-hover:scale-105 transition-transform duration-300"/>
-        </div>
-        <div class="p-3">
-          <p class="font-semibold text-[#1b1c1c] text-xs truncate">{{ e($p->name) }}</p>
-          <p class="font-bold text-sm" style="color:#006c47">${{ number_format($p->price,0,',','.') }}</p>
-        </div>
-      </a>
-      @endforeach
+    <div class="flex items-center gap-2.5 justify-center">
+      <span class="material-symbols-outlined text-[#6efcb9] text-2xl">local_shipping</span>
+      <div class="text-left">
+        <p class="text-xs md:text-sm font-black tracking-wide leading-tight">Envío Rápido y Seguro</p>
+        <p class="text-[10px] text-white/70">Entregas en tiempo récord</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2.5 justify-center">
+      <span class="material-symbols-outlined text-[#6efcb9] text-2xl">verified_user</span>
+      <div class="text-left">
+        <p class="text-xs md:text-sm font-black tracking-wide leading-tight">Compra Garantizada</p>
+        <p class="text-[10px] text-white/70">Pago seguro y protegido</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2.5 justify-center">
+      <span class="material-symbols-outlined text-[#6efcb9] text-2xl">redeem</span>
+      <div class="text-left">
+        <p class="text-xs md:text-sm font-black tracking-wide leading-tight">Puntos de Regalo</p>
+        <p class="text-[10px] text-white/70">Acumula y ahorra dinero</p>
+      </div>
     </div>
   </div>
-</section>
+</div>
 
-{{-- Categorías --}}
-<section class="px-6 py-6 bg-[#f6f3f2]">
+{{-- ── 3. Categorías en Formato Circular Premium ── --}}
+<section class="px-6 py-10 bg-[#f6f3f2] border-b border-surface-container-high">
   <div class="max-w-7xl mx-auto">
-    <div class="flex gap-3 flex-wrap">
-      <a href="{{ route('consumer.catalog') }}" class="px-5 py-2 rounded-full text-white font-semibold text-sm" style="background:#006c47">Todos</a>
+    <div class="text-center mb-6">
+      <h3 class="text-lg font-bold font-['Manrope'] text-on-surface uppercase tracking-wider">Explora por Categorías</h3>
+    </div>
+    <div class="flex gap-6 overflow-x-auto pb-4 scrollbar-none justify-start md:justify-center px-4">
+      <a href="{{ route('consumer.catalog') }}" class="flex flex-col items-center gap-3 group shrink-0 no-underline">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white border border-surface-container-high shadow-sm flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 group-hover:shadow-md group-hover:border-primary-light"
+             style="box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+          <span class="material-symbols-outlined text-primary text-2xl md:text-3xl transition-transform duration-300 group-hover:rotate-12">grid_view</span>
+        </div>
+        <span class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors text-center">Todos</span>
+      </a>
       @foreach($categories as $cat)
-        <a href="{{ route('consumer.catalog',['category'=>$cat]) }}" class="px-5 py-2 rounded-full bg-white text-[#1b1c1c] font-medium text-sm hover:text-white transition-all shadow-sm" style="transition:all .2s" onmouseover="this.style.background='#006c47'" onmouseout="this.style.background='white'">{{ $cat }}</a>
+        @php
+          $icon = 'shopping_bag';
+          foreach($iconMap as $key => $val) {
+              if(stripos($cat, $key) !== false) {
+                  $icon = $val;
+                  break;
+              }
+          }
+        @endphp
+        <a href="{{ route('consumer.catalog', ['category' => $cat]) }}" class="flex flex-col items-center gap-3 group shrink-0 no-underline">
+          <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white border border-surface-container-high shadow-sm flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 group-hover:shadow-md group-hover:border-primary-light"
+               style="box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <span class="material-symbols-outlined text-primary text-2xl md:text-3xl transition-transform duration-300 group-hover:rotate-12">{{ $icon }}</span>
+          </div>
+          <span class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors text-center max-w-[90px] truncate">{{ $cat }}</span>
+        </a>
       @endforeach
     </div>
   </div>
 </section>
 
-{{-- Productos --}}
-<section class="px-6 py-10">
+{{-- ── 4. Sección de 6 Tarjetas de Ofertas Verticales ("Ofertas para celebrar en grande") ── --}}
+<section class="px-6 py-10 bg-[#fcf9f8] relative overflow-hidden">
+  <div class="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-3xl pointer-events-none" style="background:radial-gradient(circle,rgba(0,182,122,.08),transparent 70%)"></div>
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl md:text-3xl font-black text-[#1b1c1c] font-['Manrope'] flex items-center justify-center gap-2">
+        🔥 Ofertas para celebrar en grande 🔥
+      </h2>
+      <p class="text-xs md:text-sm text-[#3c4a41] mt-1">Aprovecha los descuentos exclusivos y apoya a los productores de Fusagasugá</p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <!-- Tarjeta 1: Gorras y Accesorios -->
+      <a href="{{ route('consumer.catalog') }}" class="group relative rounded-[28px] overflow-hidden p-5 flex flex-col justify-between h-[300px] shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 no-underline text-white"
+         style="background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%), url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600&auto=format&fit=crop') center/cover no-repeat; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div>
+          <span class="inline-block px-3 py-1 bg-red-600 text-white text-[10px] font-black uppercase rounded-lg tracking-wider mb-2 shadow-sm">¡Gratis!</span>
+          <h3 class="text-base font-black text-white leading-tight font-['Manrope'] drop-shadow-md">GORRA FUTBOLERA</h3>
+          <p class="text-[11px] text-white/90 font-semibold mt-1 leading-snug drop-shadow-sm">Por compras mayores a $50.000</p>
+        </div>
+        <div class="flex items-end justify-between mt-auto">
+          <span class="text-xs font-black text-white uppercase tracking-wider group-hover:underline drop-shadow-sm">Gorra Gratis</span>
+          <div class="w-11 h-11 rounded-full border-2 border-white/90 bg-[#ff3b30] flex items-center justify-center text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#e02d24]">
+            <span class="material-symbols-outlined text-[20px]">sports_soccer</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Tarjeta 2: Celulares -->
+      <a href="{{ route('consumer.catalog', ['category' => 'Celulares']) }}" class="group relative rounded-[28px] overflow-hidden p-5 flex flex-col justify-between h-[300px] shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 no-underline text-white"
+         style="background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%), url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=600&auto=format&fit=crop') center/cover no-repeat; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div>
+          <span class="inline-block px-3 py-1 bg-red-600 text-white text-[10px] font-black uppercase rounded-lg tracking-wider mb-2 shadow-sm">49% DTO</span>
+          <h3 class="text-base font-black text-white leading-tight font-['Manrope'] drop-shadow-md">CELULARES</h3>
+          <p class="text-[11px] text-white/90 font-semibold mt-1 leading-snug drop-shadow-sm">Lo mejor en tecnología móvil</p>
+        </div>
+        <div class="flex items-end justify-between mt-auto">
+          <span class="text-xs font-black text-white uppercase tracking-wider group-hover:underline drop-shadow-sm">Celulares</span>
+          <div class="w-11 h-11 rounded-full border-2 border-white/90 bg-[#ff3b30] flex items-center justify-center text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#e02d24]">
+            <span class="material-symbols-outlined text-[20px]">smartphone</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Tarjeta 3: Computadores -->
+      <a href="{{ route('consumer.catalog', ['category' => 'Computadores']) }}" class="group relative rounded-[28px] overflow-hidden p-5 flex flex-col justify-between h-[300px] shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 no-underline text-white"
+         style="background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%), url('https://images.unsplash.com/photo-1496181130204-7552cc14542d?q=80&w=600&auto=format&fit=crop') center/cover no-repeat; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div>
+          <span class="inline-block px-3 py-1 bg-red-600 text-white text-[10px] font-black uppercase rounded-lg tracking-wider mb-2 shadow-sm">49% DTO</span>
+          <h3 class="text-base font-black text-white leading-tight font-['Manrope'] drop-shadow-md">COMPUTADORES</h3>
+          <p class="text-[11px] text-white/90 font-semibold mt-1 leading-snug drop-shadow-sm">Productividad al máximo nivel</p>
+        </div>
+        <div class="flex items-end justify-between mt-auto">
+          <span class="text-xs font-black text-white uppercase tracking-wider group-hover:underline drop-shadow-sm">Computadores</span>
+          <div class="w-11 h-11 rounded-full border-2 border-white/90 bg-[#ff3b30] flex items-center justify-center text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#e02d24]">
+            <span class="material-symbols-outlined text-[20px]">laptop_mac</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Tarjeta 4: Televisores -->
+      <a href="{{ route('consumer.catalog', ['category' => 'Televisores']) }}" class="group relative rounded-[28px] overflow-hidden p-5 flex flex-col justify-between h-[300px] shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 no-underline text-white"
+         style="background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%), url('https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=600&auto=format&fit=crop') center/cover no-repeat; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div>
+          <span class="inline-block px-3 py-1 bg-red-600 text-white text-[10px] font-black uppercase rounded-lg tracking-wider mb-2 shadow-sm">51% DTO</span>
+          <h3 class="text-base font-black text-white leading-tight font-['Manrope'] drop-shadow-md">TV LG 75"</h3>
+          <p class="text-[11px] text-white/90 font-semibold mt-1 leading-snug drop-shadow-sm">Cine y series en alta definición</p>
+        </div>
+        <div class="flex items-end justify-between mt-auto">
+          <span class="text-xs font-black text-white uppercase tracking-wider group-hover:underline drop-shadow-sm">TV</span>
+          <div class="w-11 h-11 rounded-full border-2 border-white/90 bg-[#ff3b30] flex items-center justify-center text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#e02d24]">
+            <span class="material-symbols-outlined text-[20px]">tv</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Tarjeta 5: Electrohogar -->
+      <a href="{{ route('consumer.catalog', ['category' => 'Electrohogar']) }}" class="group relative rounded-[28px] overflow-hidden p-5 flex flex-col justify-between h-[300px] shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 no-underline text-white"
+         style="background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%), url('https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=600&auto=format&fit=crop') center/cover no-repeat; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div>
+          <span class="inline-block px-3 py-1 bg-red-600 text-white text-[10px] font-black uppercase rounded-lg tracking-wider mb-2 shadow-sm">15% DTO</span>
+          <h3 class="text-base font-black text-white leading-tight font-['Manrope'] drop-shadow-md">ELECTRO</h3>
+          <p class="text-[11px] text-white/90 font-semibold mt-1 leading-snug drop-shadow-sm">Equipa tu cocina con lo mejor</p>
+        </div>
+        <div class="flex items-end justify-between mt-auto">
+          <span class="text-xs font-black text-white uppercase tracking-wider group-hover:underline drop-shadow-sm">Electro</span>
+          <div class="w-11 h-11 rounded-full border-2 border-white/90 bg-[#ff3b30] flex items-center justify-center text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#e02d24]">
+            <span class="material-symbols-outlined text-[20px]">kitchen</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Tarjeta 6: Hogar -->
+      <a href="{{ route('consumer.catalog', ['category' => 'Hogar']) }}" class="group relative rounded-[28px] overflow-hidden p-5 flex flex-col justify-between h-[300px] shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 no-underline text-white"
+         style="background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%), url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=600&auto=format&fit=crop') center/cover no-repeat; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div>
+          <span class="inline-block px-3 py-1 bg-red-600 text-white text-[10px] font-black uppercase rounded-lg tracking-wider mb-2 shadow-sm">55% DTO</span>
+          <h3 class="text-base font-black text-white leading-tight font-['Manrope'] drop-shadow-md">EXPOHOGAR</h3>
+          <p class="text-[11px] text-white/90 font-semibold mt-1 leading-snug drop-shadow-sm">Renueva tu sala y alcobas</p>
+        </div>
+        <div class="flex items-end justify-between mt-auto">
+          <span class="text-xs font-black text-white uppercase tracking-wider group-hover:underline drop-shadow-sm">Expohogar</span>
+          <div class="w-11 h-11 rounded-full border-2 border-white/90 bg-[#ff3b30] flex items-center justify-center text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#e02d24]">
+            <span class="material-symbols-outlined text-[20px]">home</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+{{-- ── 5. Banners en la Mitad del Dashboard (Publicidad Adicional) ── --}}
+@if(isset($midBanners) && $midBanners->isNotEmpty())
+  <div class="max-w-7xl mx-auto px-6 py-4">
+    <div class="text-center mb-6">
+      <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-extrabold uppercase rounded-full tracking-wider animate-pulse-soft">Comercios Destacados</span>
+    </div>
+    @foreach($midBanners as $mb)
+      @php
+        $url = asset('storage/' . $mb->image_path);
+        $isVideo = in_array(pathinfo($mb->image_path, PATHINFO_EXTENSION), ['mp4', 'webm', 'mov']);
+      @endphp
+      <div class="rounded-3xl overflow-hidden shadow-md border border-outline-variant/20 hover:scale-[1.01] transition-transform duration-300 mb-6 bg-white">
+        @if($mb->link_url)
+          <a href="{{ $mb->link_url }}" target="_blank" class="block w-full">
+            @if($isVideo)
+              <video src="{{ $url }}" class="w-full h-auto block" autoplay loop muted playsinline></video>
+            @else
+              <img src="{{ $url }}" class="w-full h-auto block" alt="{{ $mb->title ?? 'Banner Publicitario' }}" loading="lazy">
+            @endif
+          </a>
+        @else
+          @if($isVideo)
+            <video src="{{ $url }}" class="w-full h-auto block" autoplay loop muted playsinline></video>
+          @else
+            <img src="{{ $url }}" class="w-full h-auto block" alt="{{ $mb->title ?? 'Banner Publicitario' }}" loading="lazy">
+          @endif
+        @endif
+      </div>
+    @endforeach
+  </div>
+@endif
+
+{{-- ── 6. Productos Destacados ── --}}
+<section class="px-6 py-10 bg-[#fcf9f8]">
   <div class="max-w-7xl mx-auto">
     <div class="flex items-center justify-between mb-7">
-      <h2 class="text-2xl font-['Manrope'] font-bold text-[#1b1c1c]">Productos Destacados</h2>
-      <a href="{{ route('consumer.catalog') }}" class="font-semibold hover:underline flex items-center gap-1 text-sm" style="color:#006c47">
+      <h2 class="text-2xl font-['Manrope'] font-extrabold text-[#1b1c1c]">Productos Destacados</h2>
+      <a href="{{ route('consumer.catalog') }}" class="font-semibold hover:underline flex items-center gap-1 text-sm text-primary no-underline">
         Ver todos <span class="material-symbols-outlined text-sm">arrow_forward</span>
       </a>
     </div>
@@ -143,4 +350,5 @@
     </div>
   </div>
 </section>
+
 @endsection

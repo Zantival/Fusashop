@@ -27,3 +27,8 @@
 !/storage/framework/testing/.gitignore
 !/storage/framework/views/.gitignore
 !/storage/logs/.gitignore
+/storage/app/public/*
+!/storage/app/public/.gitignore
+/public/*.mp4
+/public/*.mov
+/public/*.avi

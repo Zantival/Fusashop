@@ -15,6 +15,10 @@ class NotifySellerOutOfStock implements ShouldQueue
     {
         $product = $event->product;
         Log::info("The product '{$product->name}' (ID: {$product->id}) is out of stock. Seller ID: {$product->merchant_id} notified.");
-        // We log it. In a real scenario we'd send an Email/Notification to $product->merchant.
+        
+        $merchant = \App\Models\User::find($product->merchant_id);
+        if ($merchant) {
+            $merchant->notify(new \App\Notifications\OutOfStockNotification($product));
+        }
     }
 }

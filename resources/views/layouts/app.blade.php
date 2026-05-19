@@ -236,9 +236,15 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006c47","pr
             <h3 class="font-bold text-on-surface text-sm">Notificaciones</h3>
             <a href="{{ route('notifications.index') }}" class="text-xs text-primary font-semibold hover:underline">Ver todas</a>
           </div>
-          <div class="max-h-72 overflow-y-auto divide-y divide-surface-container-low">
+          <div class="max-h-72 overflow-y-auto divide-y divide-surface-container-low" id="notif-list-container">
             @forelse(auth()->user()->notifications()->take(6)->get() as $notif)
-              <a href="{{ route('notifications.index') }}" 
+              @php
+                $url = $notif->data['url'] ?? route('notifications.index');
+                if(!isset($notif->data['url']) && isset($notif->data['type']) && $notif->data['type'] === 'banner_request' && isset($notif->data['request_id'])) {
+                    $url = route('analyst.banner-requests.show', $notif->data['request_id']);
+                }
+              @endphp
+              <a href="{{ $url }}" 
                  class="flex items-start gap-3 px-5 py-3 hover:bg-surface-container-low transition-colors {{ $notif->read_at ? 'opacity-60' : '' }}">
                 <div class="w-8 h-8 {{ $notif->read_at ? 'bg-surface-container' : 'bg-[#6efcb9]/30' }} rounded-full flex items-center justify-center shrink-0 mt-0.5">
                   <span class="material-symbols-outlined text-primary text-[16px]">{{ $notif->data['icon'] ?? 'notifications' }}</span>
@@ -527,17 +533,8 @@ function toggleDropdown(id) {
 
   // Special logic for notifications
   if (id === 'notif-dropdown' && isOpening) {
-    const badge = document.getElementById('notif-badge-ui');
-    if (badge) badge.style.display = 'none';
-    
-    // Mark as read in background
-    fetch('{{ route('notifications.readAll') }}', {
-      method: 'POST',
-      headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'application/json'
-      }
-    }).catch(() => {});
+    // We keep the badge but maybe pulse it or just let it be. We will not auto-mark as read.
+    // Let the user click on "Ver todas" or a specific notification to mark as read.
   }
 }
 

@@ -223,7 +223,7 @@ class AnalystController extends Controller
         return view('analyst.banner-request-detail', compact('requestInfo'));
     }
 
-    public function bannerRequestApprove($id)
+    public function bannerRequestApprove(Request $request, $id)
     {
         $requestInfo = \App\Models\BannerRequest::with('user')->findOrFail($id);
         
@@ -233,10 +233,16 @@ class AnalystController extends Controller
 
         $requestInfo->update(['status' => 'approved']);
 
+        // Determine destination link
+        $linkUrl = route('consumer.merchant.profile', $requestInfo->user_id);
+        if ($request->input('link_type') === 'custom' && $request->filled('custom_link_url')) {
+            $linkUrl = $request->custom_link_url;
+        }
+
         GlobalBanner::create([
             'title'      => 'Banner Patrocinado - ' . ($requestInfo->user->companyProfile->company_name ?? 'Comerciante'),
             'image_path' => $requestInfo->image_path,
-            'link_url'   => route('consumer.merchant.profile', $requestInfo->user_id),
+            'link_url'   => $linkUrl,
             'is_active'  => true,
             'sort_order' => GlobalBanner::max('sort_order') + 1,
         ]);
@@ -264,7 +270,7 @@ class AnalystController extends Controller
     {
         $request->validate([
             'title'     => 'nullable|string|max:255',
-            'image'     => 'required|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'image'     => 'required|file|mimes:jpg,jpeg,png,webp,mp4,webm,mov|max:10240',
             'link_url'  => 'nullable|url|max:500',
             'sort_order'=> 'integer|min:0',
         ]);
