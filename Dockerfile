@@ -1,9 +1,10 @@
 # Build stage for frontend assets
 FROM node:20 AS node-builder
 WORKDIR /app
-COPY package*.json vite.config.js ./
-RUN npm ci
+COPY package*.json tailwind.config.js postcss.config.js ./
+RUN npm install
 COPY resources resources
+RUN mkdir -p public/assets/css
 RUN npm run build
 
 # Production PHP stage
